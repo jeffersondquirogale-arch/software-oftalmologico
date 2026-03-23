@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary: #1a3a5c;
+  --primary-light: #2d6a9f;
+  --accent: #c9a84c;
+  --background: #f0f4f8;
+  --surface: #ffffff;
+  --text: #1e2a3a;
+  --text-muted: #6b7a8d;
+  --success: #2e7d52;
+  --danger: #c0392b;
+  --border: #d1dce8;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background-color: var(--background);
+  color: var(--text);
+  line-height: 1.6;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Playfair Display', serif;
+  color: var(--primary);
+  font-weight: 600;
+}
+
+button {
+  font-family: 'DM Sans', sans-serif;
+}
+
+@media print {
+  body {
+    background-color: white;
+  }
+  
+  .no-print {
+    display: none !important;
+  }
+  
+  .print-content {
+    display: block !important;
+  }
+}
+
