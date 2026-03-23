@@ -16,36 +16,41 @@ export const Citas = () => {
   });
   const [selectedMonth, setSelectedMonth] = useState(new Date());
 
+  const loadCitas = async () => {
+    try {
+      const startOfMonth = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth(), 1)
+        .toISOString()
+        .split('T')[0];
+      const endOfMonth = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() + 1, 0)
+        .toISOString()
+        .split('T')[0];
+
+      const allCitas = await db.citas
+        .where('fecha')
+        .between(startOfMonth, endOfMonth, true, true)
+        .toArray();
+
+      const citasConPaciente = await Promise.all(
+        allCitas.map(async (cita) => {
+          const paciente = await db.pacientes.get(cita.pacienteId);
+          return { ...cita, paciente };
+        })
+      );
+
+      setCitas(citasConPaciente);
+
+      const hoy = new Date().toISOString().split('T')[0];
+      const citasDeHoy = citasConPaciente.filter((c) => c.fecha === hoy);
+      setCitasHoy(citasDeHoy);
+    } catch {
+      alert('Error al cargar las citas. Intente nuevamente.');
+    }
+  };
+
   useEffect(() => {
     loadCitas();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedMonth]);
-
-  const loadCitas = async () => {
-    const startOfMonth = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth(), 1)
-      .toISOString()
-      .split('T')[0];
-    const endOfMonth = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() + 1, 0)
-      .toISOString()
-      .split('T')[0];
-
-    const allCitas = await db.citas
-      .where('fecha')
-      .between(startOfMonth, endOfMonth, true, true)
-      .toArray();
-
-    const citasConPaciente = await Promise.all(
-      allCitas.map(async (cita) => {
-        const paciente = await db.pacientes.get(cita.pacienteId);
-        return { ...cita, paciente };
-      })
-    );
-
-    setCitas(citasConPaciente);
-
-    const hoy = new Date().toISOString().split('T')[0];
-    const citasDeHoy = citasConPaciente.filter((c) => c.fecha === hoy);
-    setCitasHoy(citasDeHoy);
-  };
 
   const searchPatient = async () => {
     if (!searchDI) return;

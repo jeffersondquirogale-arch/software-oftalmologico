@@ -22,49 +22,54 @@ export const PerfilPaciente = () => {
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
   const [trend, setTrend] = useState<'mejora' | 'empeora' | 'mantiene'>('mantiene');
 
+  const loadData = async (patientId: number) => {
+    try {
+      const patient = await db.pacientes.get(patientId);
+      if (patient) {
+        setPaciente(patient);
+      }
+
+      const historiasList = await db.historiasClinicas
+        .where('pacienteId')
+        .equals(patientId)
+        .toArray();
+
+      historiasList.sort((a, b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime());
+      setHistorias(historiasList);
+
+      if (historiasList.length > 0) {
+        const chartPoints = historiasList.map((h, index) => ({
+          visita: `V${index + 1}`,
+          fecha: new Date(h.fecha).toLocaleDateString('es-ES', { month: 'short', day: 'numeric' }),
+          OD_ESF: parseFloat(h.formulaOD_esf || '0'),
+          OI_ESF: parseFloat(h.formulaOI_esf || '0'),
+          OD_CYL: parseFloat(h.formulaOD_cyl || '0'),
+          OI_CYL: parseFloat(h.formulaOI_cyl || '0'),
+        }));
+        setChartData(chartPoints);
+
+        if (historiasList.length >= 2) {
+          const first = historiasList[0];
+          const last = historiasList[historiasList.length - 1];
+          const firstOD = Math.abs(parseFloat(first.formulaOD_esf || '0'));
+          const lastOD = Math.abs(parseFloat(last.formulaOD_esf || '0'));
+
+          if (lastOD < firstOD) setTrend('mejora');
+          else if (lastOD > firstOD) setTrend('empeora');
+          else setTrend('mantiene');
+        }
+      }
+    } catch {
+      alert('Error al cargar el perfil del paciente. Intente nuevamente.');
+    }
+  };
+
   useEffect(() => {
     if (id) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       loadData(parseInt(id));
     }
   }, [id]);
-
-  const loadData = async (patientId: number) => {
-    const patient = await db.pacientes.get(patientId);
-    if (patient) {
-      setPaciente(patient);
-    }
-
-    const historiasList = await db.historiasClinicas
-      .where('pacienteId')
-      .equals(patientId)
-      .toArray();
-    
-    historiasList.sort((a, b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime());
-    setHistorias(historiasList);
-
-    if (historiasList.length > 0) {
-      const chartPoints = historiasList.map((h, index) => ({
-        visita: `V${index + 1}`,
-        fecha: new Date(h.fecha).toLocaleDateString('es-ES', { month: 'short', day: 'numeric' }),
-        OD_ESF: parseFloat(h.formulaOD_esf || '0'),
-        OI_ESF: parseFloat(h.formulaOI_esf || '0'),
-        OD_CYL: parseFloat(h.formulaOD_cyl || '0'),
-        OI_CYL: parseFloat(h.formulaOI_cyl || '0'),
-      }));
-      setChartData(chartPoints);
-
-      if (historiasList.length >= 2) {
-        const first = historiasList[0];
-        const last = historiasList[historiasList.length - 1];
-        const firstOD = Math.abs(parseFloat(first.formulaOD_esf || '0'));
-        const lastOD = Math.abs(parseFloat(last.formulaOD_esf || '0'));
-        
-        if (lastOD < firstOD) setTrend('mejora');
-        else if (lastOD > firstOD) setTrend('empeora');
-        else setTrend('mantiene');
-      }
-    }
-  };
 
   const handlePrint = () => {
     window.print();
@@ -92,11 +97,11 @@ export const PerfilPaciente = () => {
   const getTrendText = () => {
     switch (trend) {
       case 'mejora':
-        return 'Mejoró';
+        return '🟢 MEJORÓ';
       case 'empeora':
-        return 'Empeoró';
+        return '🔴 EMPEORÓ';
       default:
-        return 'Se Mantiene';
+        return '🟡 SE MANTIENE';
     }
   };
 
@@ -180,7 +185,7 @@ export const PerfilPaciente = () => {
       {chartData.length > 1 && (
         <div className="bg-surface rounded-lg shadow-md p-6 border border-border">
           <h3 className="text-lg font-title font-semibold text-primary mb-4">
-            Evolución de Refracción
+            Evolución de Refracción (ESF y CYL)
           </h3>
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={chartData}>
@@ -189,8 +194,10 @@ export const PerfilPaciente = () => {
               <YAxis />
               <Tooltip />
               <Legend />
-              <Line type="monotone" dataKey="OD_ESF" stroke="#1a3a5c" name="OD ESF" />
-              <Line type="monotone" dataKey="OI_ESF" stroke="#2d6a9f" name="OI ESF" />
+              <Line type="monotone" dataKey="OD_ESF" stroke="#1a3a5c" name="OD ESF" strokeWidth={2} />
+              <Line type="monotone" dataKey="OI_ESF" stroke="#2d6a9f" name="OI ESF" strokeWidth={2} />
+              <Line type="monotone" dataKey="OD_CYL" stroke="#c9a84c" name="OD CYL" strokeWidth={2} strokeDasharray="5 5" />
+              <Line type="monotone" dataKey="OI_CYL" stroke="#2e7d52" name="OI CYL" strokeWidth={2} strokeDasharray="5 5" />
             </LineChart>
           </ResponsiveContainer>
         </div>

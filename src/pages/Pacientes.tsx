@@ -12,17 +12,13 @@ export const Pacientes = () => {
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
   const itemsPerPage = 10;
 
-  useEffect(() => {
-    loadPacientes();
-  }, []);
-
-  useEffect(() => {
-    filterPacientes();
-  }, [searchTerm, pacientes]);
-
   const loadPacientes = async () => {
-    const allPacientes = await db.pacientes.orderBy('fechaRegistro').reverse().toArray();
-    setPacientes(allPacientes);
+    try {
+      const allPacientes = await db.pacientes.orderBy('fechaRegistro').reverse().toArray();
+      setPacientes(allPacientes);
+    } catch {
+      alert('Error al cargar los pacientes. Intente nuevamente.');
+    }
   };
 
   const filterPacientes = () => {
@@ -41,6 +37,16 @@ export const Pacientes = () => {
     setFilteredPacientes(filtered);
     setCurrentPage(1);
   };
+
+  useEffect(() => {
+    loadPacientes();
+   
+  }, []);
+
+  useEffect(() => {
+    filterPacientes();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchTerm, pacientes]);
 
   const handleDelete = async (id: number) => {
     try {

@@ -15,10 +15,6 @@ export const Dashboard = () => {
   const [chartData, setChartData] = useState<{ fecha: string; pacientes: number }[]>([]);
   const [citasHoy, setCitasHoy] = useState<(Cita & { paciente?: Paciente })[]>([]);
 
-  useEffect(() => {
-    loadDashboardData();
-  }, []);
-
   const loadDashboardData = async () => {
     const hoy = new Date().toISOString().split('T')[0];
     const inicioMes = new Date(new Date().getFullYear(), new Date().getMonth(), 1)
@@ -67,6 +63,11 @@ export const Dashboard = () => {
     setChartData(last7Days);
   };
 
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadDashboardData();
+  }, []);
+
   const statsCards = [
     {
       title: 'Pacientes Hoy',
@@ -84,7 +85,7 @@ export const Dashboard = () => {
       title: 'Total Pacientes',
       value: stats.totalPacientes,
       icon: TrendingUp,
-      color: 'bg-purple-500',
+      color: 'bg-primary',
     },
     {
       title: 'Nuevos Este Mes',
