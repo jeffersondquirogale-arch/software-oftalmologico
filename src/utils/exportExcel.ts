@@ -1,5 +1,22 @@
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 import { db } from '../db/database';
+
+const addSheetFromObjects = (
+  workbook: ExcelJS.Workbook,
+  sheetName: string,
+  rows: Record<string, unknown>[]
+) => {
+  const worksheet = workbook.addWorksheet(sheetName);
+  if (rows.length === 0) {
+    return;
+  }
+  worksheet.columns = Object.keys(rows[0]).map((key) => ({
+    header: key,
+    key,
+    width: 20,
+  }));
+  worksheet.addRows(rows);
+};
 
 export const exportToExcel = async () => {
   try {
@@ -7,19 +24,26 @@ export const exportToExcel = async () => {
     const historiasClinicas = await db.historiasClinicas.toArray();
     const citas = await db.citas.toArray();
 
-    const wb = XLSX.utils.book_new();
+    const workbook = new ExcelJS.Workbook();
+    workbook.creator = 'OptiSalud';
+    workbook.created = new Date();
 
-    const wsPacientes = XLSX.utils.json_to_sheet(pacientes);
-    XLSX.utils.book_append_sheet(wb, wsPacientes, 'Pacientes');
+    addSheetFromObjects(workbook, 'Pacientes', pacientes as unknown as Record<string, unknown>[]);
+    addSheetFromObjects(workbook, 'Historias Clínicas', historiasClinicas as unknown as Record<string, unknown>[]);
+    addSheetFromObjects(workbook, 'Citas', citas as unknown as Record<string, unknown>[]);
 
-    const wsHistorias = XLSX.utils.json_to_sheet(historiasClinicas);
-    XLSX.utils.book_append_sheet(wb, wsHistorias, 'Historias Clínicas');
-
-    const wsCitas = XLSX.utils.json_to_sheet(citas);
-    XLSX.utils.book_append_sheet(wb, wsCitas, 'Citas');
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
 
     const fecha = new Date().toISOString().split('T')[0];
-    XLSX.writeFile(wb, `optisalud_backup_${fecha}.xlsx`);
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `optisalud_backup_${fecha}.xlsx`;
+    link.click();
+    URL.revokeObjectURL(url);
 
     return true;
   } catch (error) {
