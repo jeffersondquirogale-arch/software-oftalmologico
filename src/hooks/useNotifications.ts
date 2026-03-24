@@ -89,7 +89,7 @@ export function useNotifications() {
 
     // Pacientes sin visita en 6+ meses
     const pacientes = await db.pacientes.toArray();
-    for (const paciente of pacientes.slice(0, 20)) {
+    for (const paciente of pacientes) {
       if (!paciente.id) continue;
       const ultimaHistoria = await db.historiasClinicas
         .where('pacienteId')

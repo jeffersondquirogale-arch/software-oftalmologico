@@ -162,10 +162,10 @@ export const GlobalSearch = ({ isOpen, onClose }: GlobalSearchProps) => {
             <button
               onClick={onClose}
               aria-label="Cerrar búsqueda"
-              className="text-text-muted hover:text-text dark:hover:text-gray-200"
+              className="text-text-muted hover:text-text dark:hover:text-gray-200 min-h-[44px] min-w-[44px] flex items-center justify-center"
             >
-            <X className="w-4 h-4" />
-          </button>
+              <X className="w-4 h-4" />
+            </button>
         </div>
 
         <div className="max-h-96 overflow-y-auto">
