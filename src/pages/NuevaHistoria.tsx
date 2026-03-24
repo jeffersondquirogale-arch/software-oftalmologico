@@ -18,20 +18,26 @@ export const NuevaHistoria = () => {
   const [historia, setHistoria] = useState<Partial<HistoriaClinica>>({
     fecha: new Date().toISOString().split('T')[0],
   });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const loadPatient = async (id: number) => {
+    try {
+      const patient = await db.pacientes.get(id);
+      if (patient) {
+        setSelectedPatient(patient);
+        setActiveTab('motivo');
+      }
+    } catch {
+      alert('Error al cargar el paciente. Intente nuevamente.');
+    }
+  };
 
   useEffect(() => {
     if (pacienteId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       loadPatient(parseInt(pacienteId));
     }
   }, [pacienteId]);
-
-  const loadPatient = async (id: number) => {
-    const patient = await db.pacientes.get(id);
-    if (patient) {
-      setSelectedPatient(patient);
-      setActiveTab('motivo');
-    }
-  };
 
   const searchPatient = async () => {
     if (!searchDI) return;
@@ -57,6 +63,37 @@ export const NuevaHistoria = () => {
     return age;
   };
 
+  const validatePatientForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
+
+    if (!newPatient.nombres?.trim()) {
+      newErrors.nombres = 'El nombre es obligatorio.';
+    }
+    if (!newPatient.apellidos?.trim()) {
+      newErrors.apellidos = 'Los apellidos son obligatorios.';
+    }
+    if (!newPatient.di?.trim()) {
+      newErrors.di = 'El documento de identidad es obligatorio.';
+    } else if (!/^\d+$/.test(newPatient.di.trim())) {
+      newErrors.di = 'El documento de identidad debe contener solo números.';
+    }
+    if (!newPatient.fechaNacimiento) {
+      newErrors.fechaNacimiento = 'La fecha de nacimiento es obligatoria.';
+    } else {
+      const birth = new Date(newPatient.fechaNacimiento);
+      const today = new Date();
+      if (isNaN(birth.getTime()) || birth > today) {
+        newErrors.fechaNacimiento = 'Ingrese una fecha de nacimiento válida.';
+      }
+    }
+    if (newPatient.telefono && !/^\d+$/.test(newPatient.telefono.trim())) {
+      newErrors.telefono = 'El teléfono debe contener solo números.';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSave = async () => {
     try {
       let patientId: number;
@@ -64,18 +101,12 @@ export const NuevaHistoria = () => {
       if (selectedPatient) {
         patientId = selectedPatient.id!;
       } else {
-        if (
-          !newPatient.nombres ||
-          !newPatient.apellidos ||
-          !newPatient.di ||
-          !newPatient.fechaNacimiento
-        ) {
-          alert('Por favor complete los datos básicos del paciente');
+        if (!validatePatientForm()) {
           setActiveTab('paciente');
           return;
         }
 
-        const edad = calculateAge(newPatient.fechaNacimiento);
+        const edad = calculateAge(newPatient.fechaNacimiento!);
         patientId = (await db.pacientes.add({
           ...newPatient,
           edad,
@@ -83,7 +114,7 @@ export const NuevaHistoria = () => {
       }
 
       if (!historia.motivoConsulta) {
-        alert('Por favor ingrese el motivo de consulta');
+        alert('Por favor ingrese el motivo de consulta.');
         setActiveTab('motivo');
         return;
       }
@@ -97,11 +128,11 @@ export const NuevaHistoria = () => {
 
       await db.historiasClinicas.add(newHistoria);
 
-      alert('Historia clínica guardada exitosamente');
+      alert('Historia clínica guardada exitosamente.');
       navigate(`/pacientes/${patientId}`);
     } catch (error) {
       console.error('Error saving historia:', error);
-      alert('Error al guardar la historia clínica');
+      alert('Error al guardar la historia clínica. Intente nuevamente.');
     }
   };
 
@@ -201,9 +232,13 @@ export const NuevaHistoria = () => {
                   <input
                     type="text"
                     value={newPatient.nombres || ''}
-                    onChange={(e) => setNewPatient({ ...newPatient, nombres: e.target.value })}
-                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    onChange={(e) => {
+                      setNewPatient({ ...newPatient, nombres: e.target.value });
+                      if (errors.nombres) setErrors({ ...errors, nombres: '' });
+                    }}
+                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary ${errors.nombres ? 'border-danger' : 'border-border'}`}
                   />
+                  {errors.nombres && <p className="text-danger text-xs mt-1">{errors.nombres}</p>}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-text mb-1">
@@ -212,9 +247,13 @@ export const NuevaHistoria = () => {
                   <input
                     type="text"
                     value={newPatient.apellidos || ''}
-                    onChange={(e) => setNewPatient({ ...newPatient, apellidos: e.target.value })}
-                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    onChange={(e) => {
+                      setNewPatient({ ...newPatient, apellidos: e.target.value });
+                      if (errors.apellidos) setErrors({ ...errors, apellidos: '' });
+                    }}
+                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary ${errors.apellidos ? 'border-danger' : 'border-border'}`}
                   />
+                  {errors.apellidos && <p className="text-danger text-xs mt-1">{errors.apellidos}</p>}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-text mb-1">
@@ -223,9 +262,14 @@ export const NuevaHistoria = () => {
                   <input
                     type="text"
                     value={newPatient.di || ''}
-                    onChange={(e) => setNewPatient({ ...newPatient, di: e.target.value })}
-                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    onChange={(e) => {
+                      setNewPatient({ ...newPatient, di: e.target.value });
+                      if (errors.di) setErrors({ ...errors, di: '' });
+                    }}
+                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary ${errors.di ? 'border-danger' : 'border-border'}`}
+                    placeholder="Solo números"
                   />
+                  {errors.di && <p className="text-danger text-xs mt-1">{errors.di}</p>}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-text mb-1">
@@ -234,11 +278,13 @@ export const NuevaHistoria = () => {
                   <input
                     type="date"
                     value={newPatient.fechaNacimiento || ''}
-                    onChange={(e) =>
-                      setNewPatient({ ...newPatient, fechaNacimiento: e.target.value })
-                    }
-                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    onChange={(e) => {
+                      setNewPatient({ ...newPatient, fechaNacimiento: e.target.value });
+                      if (errors.fechaNacimiento) setErrors({ ...errors, fechaNacimiento: '' });
+                    }}
+                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary ${errors.fechaNacimiento ? 'border-danger' : 'border-border'}`}
                   />
+                  {errors.fechaNacimiento && <p className="text-danger text-xs mt-1">{errors.fechaNacimiento}</p>}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-text mb-1">Género</label>
@@ -257,9 +303,14 @@ export const NuevaHistoria = () => {
                   <input
                     type="tel"
                     value={newPatient.telefono || ''}
-                    onChange={(e) => setNewPatient({ ...newPatient, telefono: e.target.value })}
-                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    onChange={(e) => {
+                      setNewPatient({ ...newPatient, telefono: e.target.value });
+                      if (errors.telefono) setErrors({ ...errors, telefono: '' });
+                    }}
+                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary ${errors.telefono ? 'border-danger' : 'border-border'}`}
+                    placeholder="Solo números"
                   />
+                  {errors.telefono && <p className="text-danger text-xs mt-1">{errors.telefono}</p>}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-text mb-1">Dirección</label>
