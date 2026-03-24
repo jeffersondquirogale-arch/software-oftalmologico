@@ -6,30 +6,62 @@ import { NuevaHistoria } from './pages/NuevaHistoria';
 import { PerfilPaciente } from './pages/PerfilPaciente';
 import { Citas } from './pages/Citas';
 import { Reportes } from './pages/Reportes';
-import { useEffect } from 'react';
+import { Login } from './pages/Login';
+import { Configuracion } from './pages/Configuracion';
+import { useEffect, type ReactNode } from 'react';
 import { useAppStore } from './store/useAppStore';
+import { useAuth } from './hooks/useAuth';
 
-function App() {
+function PrivateRoute({ children }: { children: ReactNode }) {
+  const { isAuthenticated } = useAuth();
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+  return <>{children}</>;
+}
+
+function AppRoutes() {
   const { setCurrentModule } = useAppStore();
+  const { isAuthenticated } = useAuth();
 
   useEffect(() => {
     setCurrentModule('Dashboard');
   }, [setCurrentModule]);
 
   return (
+    <Routes>
+      <Route
+        path="/login"
+        element={isAuthenticated ? <Navigate to="/" replace /> : <Login />}
+      />
+      <Route
+        path="/*"
+        element={
+          <PrivateRoute>
+            <MainLayout>
+              <Routes>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/pacientes" element={<Pacientes />} />
+                <Route path="/pacientes/:id" element={<PerfilPaciente />} />
+                <Route path="/nueva-historia" element={<NuevaHistoria />} />
+                <Route path="/nueva-historia/:pacienteId" element={<NuevaHistoria />} />
+                <Route path="/citas" element={<Citas />} />
+                <Route path="/reportes" element={<Reportes />} />
+                <Route path="/configuracion" element={<Configuracion />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </MainLayout>
+          </PrivateRoute>
+        }
+      />
+    </Routes>
+  );
+}
+
+function App() {
+  return (
     <Router>
-      <MainLayout>
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/pacientes" element={<Pacientes />} />
-          <Route path="/pacientes/:id" element={<PerfilPaciente />} />
-          <Route path="/nueva-historia" element={<NuevaHistoria />} />
-          <Route path="/nueva-historia/:pacienteId" element={<NuevaHistoria />} />
-          <Route path="/citas" element={<Citas />} />
-          <Route path="/reportes" element={<Reportes />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </MainLayout>
+      <AppRoutes />
     </Router>
   );
 }

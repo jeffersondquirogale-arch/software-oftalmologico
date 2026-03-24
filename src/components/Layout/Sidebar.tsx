@@ -1,10 +1,13 @@
-import { Link, useLocation } from 'react-router-dom';
-import { Home, Users, FileText, Calendar, BarChart3, Eye } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Home, Users, FileText, Calendar, BarChart3, Eye, Settings, LogOut } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
+import { useAuth } from '../../hooks/useAuth';
 
 export const Sidebar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { setCurrentModule } = useAppStore();
+  const { logout } = useAuth();
 
   const menuItems = [
     { name: 'Dashboard', path: '/', icon: Home },
@@ -12,7 +15,13 @@ export const Sidebar = () => {
     { name: 'Nueva Historia', path: '/nueva-historia', icon: FileText },
     { name: 'Citas', path: '/citas', icon: Calendar },
     { name: 'Reportes', path: '/reportes', icon: BarChart3 },
+    { name: 'Configuración', path: '/configuracion', icon: Settings },
   ];
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login', { replace: true });
+  };
 
   return (
     <div className="fixed left-0 top-0 h-screen w-64 bg-primary text-white shadow-xl flex flex-col">
@@ -51,8 +60,15 @@ export const Sidebar = () => {
         </ul>
       </nav>
 
-      <div className="p-6 border-t border-primary-light">
-        <p className="text-xs text-gray-400 text-center">
+      <div className="p-4 border-t border-primary-light">
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-3 px-4 py-3 w-full rounded-lg text-gray-300 hover:bg-danger hover:text-white transition-all"
+        >
+          <LogOut className="w-5 h-5" />
+          <span>Cerrar Sesión</span>
+        </button>
+        <p className="text-xs text-gray-400 text-center mt-3">
           TP 1.010.201.450 | RM 3945 CTNPO
         </p>
       </div>

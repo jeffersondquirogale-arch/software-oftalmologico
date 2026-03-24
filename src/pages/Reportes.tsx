@@ -1,15 +1,107 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Download, FileText, Calendar, Users } from 'lucide-react';
+import {
+  PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
+  ResponsiveContainer,
+  type PieLabelRenderProps,
+} from 'recharts';
 import { exportToExcel } from '../utils/exportExcel';
+import { db } from '../db/database';
+import type { Paciente, Cita } from '../db/database';
+
+const COLORS = ['#1a3a5c', '#c9a84c', '#4caf50', '#ef4444'];
+
+interface MonthData {
+  mes: string;
+  historias: number;
+  citas: number;
+}
+
+interface GenderData {
+  name: string;
+  value: number;
+}
+
+interface CitaStatusData {
+  name: string;
+  value: number;
+}
+
+const MONTH_NAMES = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+
+const pieLabel = ({ name, percent }: PieLabelRenderProps) =>
+  `${name ?? ''} ${((percent ?? 0) * 100).toFixed(0)}%`;
 
 export const Reportes = () => {
   const [isExporting, setIsExporting] = useState(false);
+  const [genderData, setGenderData] = useState<GenderData[]>([]);
+  const [citaStatusData, setCitaStatusData] = useState<CitaStatusData[]>([]);
+  const [monthData, setMonthData] = useState<MonthData[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [pacientes, historias, citas] = await Promise.all([
+          db.pacientes.toArray() as Promise<Paciente[]>,
+          db.historiasClinicas.toArray(),
+          db.citas.toArray() as Promise<Cita[]>,
+        ]);
+
+        // Gender distribution
+        const genderCount: Record<string, number> = {};
+        pacientes.forEach((p) => {
+          const g = p.genero || 'No especificado';
+          genderCount[g] = (genderCount[g] || 0) + 1;
+        });
+        setGenderData(Object.entries(genderCount).map(([name, value]) => ({ name, value })));
+
+        // Citas status distribution
+        const statusCount: Record<string, number> = {
+          pendiente: 0, confirmada: 0, atendida: 0, cancelada: 0,
+        };
+        citas.forEach((c) => { statusCount[c.estado] = (statusCount[c.estado] || 0) + 1; });
+        setCitaStatusData(
+          Object.entries(statusCount)
+            .filter(([, v]) => v > 0)
+            .map(([name, value]) => ({
+              name: name.charAt(0).toUpperCase() + name.slice(1),
+              value,
+            }))
+        );
+
+        // Monthly activity for current year
+        const currentYear = new Date().getFullYear();
+        const monthly: Record<number, MonthData> = {};
+        for (let i = 0; i < 12; i++) {
+          monthly[i] = { mes: MONTH_NAMES[i], historias: 0, citas: 0 };
+        }
+        historias.forEach((h) => {
+          const d = new Date(h.fecha);
+          if (d.getFullYear() === currentYear) {
+            monthly[d.getMonth()].historias += 1;
+          }
+        });
+        citas.forEach((c) => {
+          const d = new Date(c.fecha);
+          if (d.getFullYear() === currentYear) {
+            monthly[d.getMonth()].citas += 1;
+          }
+        });
+        setMonthData(Object.values(monthly));
+      } catch (err) {
+        console.error('Error loading report data:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, []);
 
   const handleExport = async () => {
     setIsExporting(true);
     const success = await exportToExcel();
     setIsExporting(false);
-    
     if (success) {
       alert('Exportación completada exitosamente');
     } else {
@@ -19,6 +111,99 @@ export const Reportes = () => {
 
   return (
     <div className="space-y-6">
+      <div>
+        <h2 className="text-2xl font-title font-bold text-primary">Reportes</h2>
+        <p className="text-text-muted mt-1">Estadísticas y exportación de datos.</p>
+      </div>
+
+      {/* Charts */}
+      {loading ? (
+        <div className="text-center py-10 text-text-muted">Cargando estadísticas...</div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Género PieChart */}
+          <div className="bg-surface rounded-lg shadow-md p-6 border border-border">
+            <h3 className="text-lg font-title font-semibold text-primary mb-4">
+              Distribución por Género
+            </h3>
+            {genderData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={250}>
+                <PieChart>
+                  <Pie
+                    data={genderData}
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={90}
+                    dataKey="value"
+                    label={pieLabel}
+                    labelLine={false}
+                  >
+                    {genderData.map((_, index) => (
+                      <Cell key={index} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <p className="text-text-muted text-sm text-center py-10">
+                No hay datos de pacientes.
+              </p>
+            )}
+          </div>
+
+          {/* Citas Status PieChart */}
+          <div className="bg-surface rounded-lg shadow-md p-6 border border-border">
+            <h3 className="text-lg font-title font-semibold text-primary mb-4">
+              Estado de Citas
+            </h3>
+            {citaStatusData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={250}>
+                <PieChart>
+                  <Pie
+                    data={citaStatusData}
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={90}
+                    dataKey="value"
+                    label={pieLabel}
+                    labelLine={false}
+                  >
+                    {citaStatusData.map((_, index) => (
+                      <Cell key={index} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <p className="text-text-muted text-sm text-center py-10">No hay datos de citas.</p>
+            )}
+          </div>
+
+          {/* Monthly BarChart */}
+          <div className="bg-surface rounded-lg shadow-md p-6 border border-border lg:col-span-2">
+            <h3 className="text-lg font-title font-semibold text-primary mb-4">
+              Actividad Mensual ({new Date().getFullYear()})
+            </h3>
+            <ResponsiveContainer width="100%" height={280}>
+              <BarChart data={monthData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="mes" />
+                <YAxis allowDecimals={false} />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="historias" name="Historias Clínicas" fill="#1a3a5c" radius={[3, 3, 0, 0]} />
+                <Bar dataKey="citas" name="Citas" fill="#c9a84c" radius={[3, 3, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
+
+      {/* Export */}
       <div className="bg-surface rounded-lg shadow-md p-6 border border-border">
         <h3 className="text-lg font-title font-semibold text-primary mb-4">
           Exportar Datos a Excel
