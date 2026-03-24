@@ -1,9 +1,17 @@
 import { useState, useCallback } from 'react';
-import type { AuthState } from '../types';
+import type { AuthState, UserRole } from '../types';
 
 const AUTH_KEY = 'optisalud_auth';
-const VALID_USERNAME = 'admin';
-const VALID_PASSWORD = 'optisalud2024';
+
+interface UserCredential {
+  password: string;
+  role: UserRole;
+}
+
+const VALID_USERS: Record<string, UserCredential> = {
+  admin: { password: 'optisalud2024', role: 'doctor' },
+  asistente: { password: 'asistente2024', role: 'asistente' },
+};
 
 function readAuthFromStorage(): AuthState {
   try {
@@ -24,8 +32,12 @@ export function useAuth() {
   const [auth, setAuth] = useState<AuthState>(readAuthFromStorage);
 
   const login = useCallback((username: string, password: string): boolean => {
-    if (username === VALID_USERNAME && password === VALID_PASSWORD) {
-      const newAuth: AuthState = { isAuthenticated: true, user: { username } };
+    const cred = VALID_USERS[username];
+    if (cred && cred.password === password) {
+      const newAuth: AuthState = {
+        isAuthenticated: true,
+        user: { username, role: cred.role },
+      };
       localStorage.setItem(AUTH_KEY, JSON.stringify(newAuth));
       setAuth(newAuth);
       return true;
@@ -43,4 +55,8 @@ export function useAuth() {
 
 export function isAuthenticated(): boolean {
   return readAuthFromStorage().isAuthenticated;
+}
+
+export function getCurrentUserRole(): UserRole | null {
+  return readAuthFromStorage().user?.role ?? null;
 }

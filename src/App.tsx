@@ -8,6 +8,7 @@ import { Citas } from './pages/Citas';
 import { Reportes } from './pages/Reportes';
 import { Login } from './pages/Login';
 import { Configuracion } from './pages/Configuracion';
+import { AuditLog } from './pages/AuditLog';
 import { useEffect, type ReactNode } from 'react';
 import { useAppStore } from './store/useAppStore';
 import { useAuth } from './hooks/useAuth';
@@ -16,6 +17,14 @@ function PrivateRoute({ children }: { children: ReactNode }) {
   const { isAuthenticated } = useAuth();
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
+  }
+  return <>{children}</>;
+}
+
+function DoctorRoute({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
+  if (!user || user.role !== 'doctor') {
+    return <Navigate to="/" replace />;
   }
   return <>{children}</>;
 }
@@ -46,8 +55,9 @@ function AppRoutes() {
                 <Route path="/nueva-historia" element={<NuevaHistoria />} />
                 <Route path="/nueva-historia/:pacienteId" element={<NuevaHistoria />} />
                 <Route path="/citas" element={<Citas />} />
-                <Route path="/reportes" element={<Reportes />} />
-                <Route path="/configuracion" element={<Configuracion />} />
+                <Route path="/reportes" element={<DoctorRoute><Reportes /></DoctorRoute>} />
+                <Route path="/configuracion" element={<DoctorRoute><Configuracion /></DoctorRoute>} />
+                <Route path="/audit" element={<DoctorRoute><AuditLog /></DoctorRoute>} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </MainLayout>
