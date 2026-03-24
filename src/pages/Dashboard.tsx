@@ -113,12 +113,12 @@ export const Dashboard = () => {
           return (
             <div
               key={card.title}
-              className="bg-surface rounded-lg shadow-md p-6 border border-border"
+              className="bg-surface dark:bg-gray-800 rounded-lg shadow-md p-6 border border-border dark:border-gray-700"
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-text-muted text-sm font-medium">{card.title}</p>
-                  <p className="text-3xl font-bold text-primary mt-2">{card.value}</p>
+                  <p className="text-text-muted dark:text-gray-400 text-sm font-medium">{card.title}</p>
+                  <p className="text-3xl font-bold text-primary dark:text-blue-300 mt-2">{card.value}</p>
                 </div>
                 <div className={`${card.color} p-3 rounded-lg`}>
                   <Icon className="w-6 h-6 text-white" />
@@ -130,8 +130,8 @@ export const Dashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-surface rounded-lg shadow-md p-6 border border-border">
-          <h3 className="text-lg font-title font-semibold text-primary mb-4">
+        <div className="lg:col-span-2 bg-surface dark:bg-gray-800 rounded-lg shadow-md p-6 border border-border dark:border-gray-700">
+          <h3 className="text-lg font-title font-semibold text-primary dark:text-blue-300 mb-4">
             Pacientes Últimos 7 Días
           </h3>
           <ResponsiveContainer width="100%" height={300}>
@@ -145,26 +145,26 @@ export const Dashboard = () => {
           </ResponsiveContainer>
         </div>
 
-        <div className="bg-surface rounded-lg shadow-md p-6 border border-border">
-          <h3 className="text-lg font-title font-semibold text-primary mb-4">
+        <div className="bg-surface dark:bg-gray-800 rounded-lg shadow-md p-6 border border-border dark:border-gray-700">
+          <h3 className="text-lg font-title font-semibold text-primary dark:text-blue-300 mb-4">
             Citas de Hoy
           </h3>
           <div className="space-y-3 max-h-80 overflow-y-auto">
             {citasHoy.length === 0 ? (
-              <p className="text-text-muted text-sm">No hay citas programadas para hoy</p>
+              <p className="text-text-muted dark:text-gray-400 text-sm">No hay citas programadas para hoy</p>
             ) : (
               citasHoy.map((cita) => (
                 <div
                   key={cita.id}
-                  className="p-3 border border-border rounded-lg hover:shadow-sm transition-shadow"
+                  className="p-3 border border-border dark:border-gray-600 rounded-lg hover:shadow-sm transition-shadow"
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <p className="font-semibold text-sm text-primary">
+                      <p className="font-semibold text-sm text-primary dark:text-blue-300">
                         {cita.paciente?.nombres} {cita.paciente?.apellidos}
                       </p>
-                      <p className="text-xs text-text-muted mt-1">{cita.hora}</p>
-                      <p className="text-xs text-text-muted">{cita.motivo}</p>
+                      <p className="text-xs text-text-muted dark:text-gray-400 mt-1">{cita.hora}</p>
+                      <p className="text-xs text-text-muted dark:text-gray-400">{cita.motivo}</p>
                     </div>
                     <span
                       className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(
@@ -181,8 +181,8 @@ export const Dashboard = () => {
         </div>
       </div>
 
-      <div className="bg-surface rounded-lg shadow-md p-6 border border-border">
-        <h3 className="text-lg font-title font-semibold text-primary mb-4">
+      <div className="bg-surface dark:bg-gray-800 rounded-lg shadow-md p-6 border border-border dark:border-gray-700">
+        <h3 className="text-lg font-title font-semibold text-primary dark:text-blue-300 mb-4">
           Acciones Rápidas
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

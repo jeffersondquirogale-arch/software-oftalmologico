@@ -95,10 +95,34 @@ export interface Cita {
   notas?: string;
 }
 
+export interface AuditLog {
+  id?: number;
+  timestamp: string;
+  userId: string;
+  action: 'create' | 'update' | 'delete';
+  entity: 'paciente' | 'historiaClinica' | 'cita';
+  entityId: number;
+  changes?: string;
+  description: string;
+}
+
+export interface Attachment {
+  id?: number;
+  pacienteId: number;
+  historiaId?: number;
+  fileName: string;
+  fileType: string;
+  base64Data: string;
+  description?: string;
+  uploadDate: string;
+}
+
 export class OptiSaludDatabase extends Dexie {
   pacientes!: Table<Paciente>;
   historiasClinicas!: Table<HistoriaClinica>;
   citas!: Table<Cita>;
+  auditLog!: Table<AuditLog>;
+  attachments!: Table<Attachment>;
 
   constructor() {
     super('OptiSaludDB');
@@ -107,7 +131,37 @@ export class OptiSaludDatabase extends Dexie {
       historiasClinicas: '++id, pacienteId, fecha',
       citas: '++id, pacienteId, fecha, estado',
     });
+    this.version(2).stores({
+      pacientes: '++id, di, nombres, apellidos, fechaRegistro',
+      historiasClinicas: '++id, pacienteId, fecha',
+      citas: '++id, pacienteId, fecha, estado',
+      auditLog: '++id, timestamp, userId, action, entity, entityId',
+      attachments: '++id, pacienteId, historiaId, uploadDate',
+    });
   }
 }
 
 export const db = new OptiSaludDatabase();
+
+export async function logAudit(
+  userId: string,
+  action: AuditLog['action'],
+  entity: AuditLog['entity'],
+  entityId: number,
+  description: string,
+  changes?: string
+): Promise<void> {
+  try {
+    await db.auditLog.add({
+      timestamp: new Date().toISOString(),
+      userId,
+      action,
+      entity,
+      entityId,
+      description,
+      changes,
+    });
+  } catch {
+    // don't fail main operation if audit log fails
+  }
+}
