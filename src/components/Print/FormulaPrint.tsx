@@ -1,6 +1,6 @@
 import type { Paciente, HistoriaClinica } from '../../db/database';
 
-interface HistoriaCompletaPrintProps {
+interface FormulaPrintProps {
   paciente: Paciente;
   historia: HistoriaClinica;
   numeroHistoria?: number;
@@ -8,7 +8,7 @@ interface HistoriaCompletaPrintProps {
 
 const cell = (val?: string) => val || '';
 
-export const HistoriaCompletaPrint = ({ paciente, historia, numeroHistoria }: HistoriaCompletaPrintProps) => {
+export const FormulaPrint = ({ paciente, historia, numeroHistoria }: FormulaPrintProps) => {
   const fecha = new Date(historia.fecha);
   const dia = fecha.getDate().toString().padStart(2, '0');
   const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
@@ -43,18 +43,6 @@ export const HistoriaCompletaPrint = ({ paciente, historia, numeroHistoria }: Hi
           text-align: center;
           font-size: 9px;
         }
-        .hc-label {
-          font-size: 8px;
-          font-weight: bold;
-          color: #1a3a5c;
-          text-transform: uppercase;
-        }
-        .hc-value {
-          border-bottom: 1px solid #333;
-          min-height: 14px;
-          padding: 1px 2px;
-          font-size: 9px;
-        }
         .section-header {
           background: #1a3a5c;
           color: white;
@@ -64,12 +52,6 @@ export const HistoriaCompletaPrint = ({ paciente, historia, numeroHistoria }: Hi
           text-transform: uppercase;
           letter-spacing: 0.04em;
         }
-        .field-row {
-          display: flex;
-          align-items: flex-end;
-          gap: 6px;
-          margin-bottom: 4px;
-        }
         .field-label {
           font-size: 8px;
           font-weight: bold;
@@ -77,19 +59,11 @@ export const HistoriaCompletaPrint = ({ paciente, historia, numeroHistoria }: Hi
           white-space: nowrap;
           flex-shrink: 0;
         }
-        .field-line {
-          flex: 1;
-          border-bottom: 1px solid #333;
-          min-height: 13px;
-          font-size: 9px;
-          padding: 0 2px;
-        }
       `}</style>
 
       {/* ── ENCABEZADO ── */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px', borderBottom: '2px solid #1a3a5c', paddingBottom: '6px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          {/* Ojo logo SVG simple */}
           <svg width="40" height="40" viewBox="0 0 40 40" style={{ flexShrink: 0 }}>
             <circle cx="20" cy="20" r="18" fill="none" stroke="#1a3a5c" strokeWidth="2" />
             <ellipse cx="20" cy="20" rx="14" ry="9" fill="none" stroke="#1a3a5c" strokeWidth="1.5" />
@@ -102,7 +76,6 @@ export const HistoriaCompletaPrint = ({ paciente, historia, numeroHistoria }: Hi
             <div style={{ fontSize: '8px', color: '#333' }}>Optómetra F.U.A.A. &nbsp;|&nbsp; TP 1.010.201.450 &nbsp;|&nbsp; RM 3945 CTNPO</div>
           </div>
         </div>
-        {/* Número y fecha */}
         <div style={{ textAlign: 'right', border: '2px solid #1a3a5c', padding: '4px 10px', borderRadius: '4px' }}>
           <div style={{ fontSize: '9px', fontWeight: 'bold', color: '#1a3a5c' }}>N°</div>
           <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#1a3a5c', lineHeight: 1 }}>
@@ -128,56 +101,23 @@ export const HistoriaCompletaPrint = ({ paciente, historia, numeroHistoria }: Hi
       {/* ── DATOS PACIENTE ── */}
       <div style={{ border: '1px solid #1a3a5c', marginBottom: '4px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0', borderBottom: '1px solid #1a3a5c' }}>
-          <div style={{ padding: '2px 6px', borderRight: '1px solid #1a3a5c' }}>
-            <span className="field-label">Nombres: </span>
-            <span style={{ fontSize: '9px' }}>{paciente.nombres}</span>
-          </div>
-          <div style={{ padding: '2px 6px' }}>
-            <span className="field-label">Apellidos: </span>
-            <span style={{ fontSize: '9px' }}>{paciente.apellidos}</span>
-          </div>
+          <div style={{ padding: '2px 6px', borderRight: '1px solid #1a3a5c' }}><span className="field-label">Nombres: </span><span style={{ fontSize: '9px' }}>{paciente.nombres}</span></div>
+          <div style={{ padding: '2px 6px' }}><span className="field-label">Apellidos: </span><span style={{ fontSize: '9px' }}>{paciente.apellidos}</span></div>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '0', borderBottom: '1px solid #1a3a5c' }}>
-          <div style={{ padding: '2px 6px', borderRight: '1px solid #1a3a5c' }}>
-            <span className="field-label">D.I.: </span>
-            <span style={{ fontSize: '9px' }}>{paciente.di}</span>
-          </div>
-          <div style={{ padding: '2px 6px', borderRight: '1px solid #1a3a5c' }}>
-            <span className="field-label">Edad: </span>
-            <span style={{ fontSize: '9px' }}>{paciente.edad} años</span>
-          </div>
-          <div style={{ padding: '2px 6px', borderRight: '1px solid #1a3a5c' }}>
-            <span className="field-label">Género: </span>
-            <span style={{ fontSize: '9px' }}>{paciente.genero}</span>
-          </div>
-          <div style={{ padding: '2px 6px' }}>
-            <span className="field-label">Tel.: </span>
-            <span style={{ fontSize: '9px' }}>{paciente.telefono}</span>
-          </div>
+          <div style={{ padding: '2px 6px', borderRight: '1px solid #1a3a5c' }}><span className="field-label">D.I.: </span><span style={{ fontSize: '9px' }}>{paciente.di}</span></div>
+          <div style={{ padding: '2px 6px', borderRight: '1px solid #1a3a5c' }}><span className="field-label">Edad: </span><span style={{ fontSize: '9px' }}>{paciente.edad} años</span></div>
+          <div style={{ padding: '2px 6px', borderRight: '1px solid #1a3a5c' }}><span className="field-label">Género: </span><span style={{ fontSize: '9px' }}>{paciente.genero}</span></div>
+          <div style={{ padding: '2px 6px' }}><span className="field-label">Tel.: </span><span style={{ fontSize: '9px' }}>{paciente.telefono}</span></div>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0', borderBottom: '1px solid #1a3a5c' }}>
-          <div style={{ padding: '2px 6px', borderRight: '1px solid #1a3a5c' }}>
-            <span className="field-label">EPS: </span>
-            <span style={{ fontSize: '9px' }}>{paciente.eps}</span>
-          </div>
-          <div style={{ padding: '2px 6px', borderRight: '1px solid #1a3a5c' }}>
-            <span className="field-label">Ocupación: </span>
-            <span style={{ fontSize: '9px' }}>{paciente.ocupacion}</span>
-          </div>
-          <div style={{ padding: '2px 6px' }}>
-            <span className="field-label">Dir.: </span>
-            <span style={{ fontSize: '9px' }}>{paciente.direccion}</span>
-          </div>
+          <div style={{ padding: '2px 6px', borderRight: '1px solid #1a3a5c' }}><span className="field-label">EPS: </span><span style={{ fontSize: '9px' }}>{paciente.eps}</span></div>
+          <div style={{ padding: '2px 6px', borderRight: '1px solid #1a3a5c' }}><span className="field-label">Ocupación: </span><span style={{ fontSize: '9px' }}>{paciente.ocupacion}</span></div>
+          <div style={{ padding: '2px 6px' }}><span className="field-label">Dir.: </span><span style={{ fontSize: '9px' }}>{paciente.direccion}</span></div>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0' }}>
-          <div style={{ padding: '2px 6px', borderRight: '1px solid #1a3a5c' }}>
-            <span className="field-label">Acompañante: </span>
-            <span style={{ fontSize: '9px' }}>{paciente.acompanante}</span>
-          </div>
-          <div style={{ padding: '2px 6px' }}>
-            <span className="field-label">Parentesco: </span>
-            <span style={{ fontSize: '9px' }}>{paciente.parentesco}</span>
-          </div>
+          <div style={{ padding: '2px 6px', borderRight: '1px solid #1a3a5c' }}><span className="field-label">Acompañante: </span><span style={{ fontSize: '9px' }}>{paciente.acompanante}</span></div>
+          <div style={{ padding: '2px 6px' }}><span className="field-label">Parentesco: </span><span style={{ fontSize: '9px' }}>{paciente.parentesco}</span></div>
         </div>
       </div>
 
@@ -195,90 +135,51 @@ export const HistoriaCompletaPrint = ({ paciente, historia, numeroHistoria }: Hi
 
       {/* ── LENSOMETRÍA + AGUDEZA VISUAL ── */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px', marginBottom: '4px' }}>
-
-        {/* LENSOMETRÍA */}
         <div style={{ border: '1px solid #1a3a5c' }}>
           <div className="section-header">2. Lensometría</div>
           <table className="hc-table">
-            <thead>
-              <tr>
-                <th></th>
-                <th>ESF</th><th>CYL</th><th>EJE</th><th>ADD</th><th>DNP</th><th>PRIS</th>
-              </tr>
-            </thead>
+            <thead><tr><th></th><th>ESF</th><th>CYL</th><th>EJE</th><th>ADD</th><th>DNP</th><th>PRIS</th></tr></thead>
             <tbody>
               <tr>
                 <td style={{ fontWeight: 'bold', background: '#eef2f7' }}>OD</td>
-                <td>{cell(historia.lensOD_esf)}</td>
-                <td>{cell(historia.lensOD_cyl)}</td>
-                <td>{cell(historia.lensOD_eje)}</td>
-                <td>{cell(historia.lensOD_add)}</td>
-                <td>{cell(historia.lensOD_dnp)}</td>
-                <td>{cell(historia.lensOD_pris)}</td>
+                <td>{cell(historia.lensOD_esf)}</td><td>{cell(historia.lensOD_cyl)}</td><td>{cell(historia.lensOD_eje)}</td>
+                <td>{cell(historia.lensOD_add)}</td><td>{cell(historia.lensOD_dnp)}</td><td>{cell(historia.lensOD_pris)}</td>
               </tr>
               <tr>
                 <td style={{ fontWeight: 'bold', background: '#eef2f7' }}>OI</td>
-                <td>{cell(historia.lensOI_esf)}</td>
-                <td>{cell(historia.lensOI_cyl)}</td>
-                <td>{cell(historia.lensOI_eje)}</td>
-                <td>{cell(historia.lensOI_add)}</td>
-                <td>{cell(historia.lensOI_dnp)}</td>
-                <td>{cell(historia.lensOI_pris)}</td>
+                <td>{cell(historia.lensOI_esf)}</td><td>{cell(historia.lensOI_cyl)}</td><td>{cell(historia.lensOI_eje)}</td>
+                <td>{cell(historia.lensOI_add)}</td><td>{cell(historia.lensOI_dnp)}</td><td>{cell(historia.lensOI_pris)}</td>
               </tr>
               <tr>
                 <td colSpan={7} style={{ textAlign: 'left', padding: '2px 4px' }}>
-                  <span className="field-label">RX: </span>{cell(historia.queratometria)}
-                  &nbsp;&nbsp;<span className="field-label">Uso: </span>
+                  <span className="field-label">Uso: </span>
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
-
-        {/* AGUDEZA VISUAL */}
         <div style={{ border: '1px solid #1a3a5c' }}>
           <div className="section-header">3. Agudeza Visual</div>
           <table className="hc-table">
-            <thead>
-              <tr>
-                <th></th>
-                <th>VLSC</th><th>PH</th><th>VPSC</th><th>VLCC</th><th>VPCC</th>
-              </tr>
-            </thead>
+            <thead><tr><th></th><th>VLSC</th><th>PH</th><th>VPSC</th><th>VLCC</th><th>VPCC</th></tr></thead>
             <tbody>
               <tr>
                 <td style={{ fontWeight: 'bold', background: '#eef2f7' }}>OD</td>
-                <td>{cell(historia.av_od_vlsc)}</td>
-                <td>{cell(historia.av_od_ph)}</td>
-                <td>{cell(historia.av_od_vpsc)}</td>
-                <td>{cell(historia.av_od_vlcc)}</td>
-                <td>{cell(historia.av_od_vpcc)}</td>
+                <td>{cell(historia.av_od_vlsc)}</td><td>{cell(historia.av_od_ph)}</td><td>{cell(historia.av_od_vpsc)}</td>
+                <td>{cell(historia.av_od_vlcc)}</td><td>{cell(historia.av_od_vpcc)}</td>
               </tr>
               <tr>
                 <td style={{ fontWeight: 'bold', background: '#eef2f7' }}>OI</td>
-                <td>{cell(historia.av_oi_vlsc)}</td>
-                <td>{cell(historia.av_oi_ph)}</td>
-                <td>{cell(historia.av_oi_vpsc)}</td>
-                <td>{cell(historia.av_oi_vlcc)}</td>
-                <td>{cell(historia.av_oi_vpcc)}</td>
+                <td>{cell(historia.av_oi_vlsc)}</td><td>{cell(historia.av_oi_ph)}</td><td>{cell(historia.av_oi_vpsc)}</td>
+                <td>{cell(historia.av_oi_vlcc)}</td><td>{cell(historia.av_oi_vpcc)}</td>
               </tr>
             </tbody>
           </table>
-          {/* Cover Test + Hirschberg */}
           <div style={{ padding: '2px 4px', borderTop: '1px solid #1a3a5c' }}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px' }}>
-              <div>
-                <span className="field-label">Cover Test VL: </span>
-                <span style={{ fontSize: '9px' }}>{cell(historia.coverTest_vl)}</span>
-              </div>
-              <div>
-                <span className="field-label">VP: </span>
-                <span style={{ fontSize: '9px' }}>{cell(historia.coverTest_vp)}</span>
-              </div>
-              <div>
-                <span className="field-label">Hirschberg: </span>
-                <span style={{ fontSize: '9px' }}>{cell(historia.hirschberg)}</span>
-              </div>
+              <div><span className="field-label">Cover Test VL: </span><span style={{ fontSize: '9px' }}>{cell(historia.coverTest_vl)}</span></div>
+              <div><span className="field-label">VP: </span><span style={{ fontSize: '9px' }}>{cell(historia.coverTest_vp)}</span></div>
+              <div><span className="field-label">Hirschberg: </span><span style={{ fontSize: '9px' }}>{cell(historia.hirschberg)}</span></div>
             </div>
           </div>
         </div>
@@ -286,8 +187,6 @@ export const HistoriaCompletaPrint = ({ paciente, historia, numeroHistoria }: Hi
 
       {/* ── MOTILIDAD + EXAMEN EXTERNO + CFTA-MOSCOPIA ── */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '4px', marginBottom: '4px' }}>
-
-        {/* MOTILIDAD */}
         <div style={{ border: '1px solid #1a3a5c' }}>
           <div className="section-header">4. Motilidad Ocular</div>
           <div style={{ padding: '3px 6px' }}>
@@ -297,11 +196,8 @@ export const HistoriaCompletaPrint = ({ paciente, historia, numeroHistoria }: Hi
             <div style={{ fontSize: '9px', minHeight: '14px' }}>{cell(historia.versionesDUC)}</div>
           </div>
         </div>
-
-        {/* EXAMEN EXTERNO */}
         <div style={{ border: '1px solid #1a3a5c' }}>
           <div className="section-header">7. Examen Externo</div>
-          {/* Shapes like the physical form */}
           <div style={{ display: 'flex', justifyContent: 'space-around', padding: '4px', borderBottom: '1px solid #1a3a5c' }}>
             <div style={{ textAlign: 'center' }}>
               <svg width="28" height="28" viewBox="0 0 28 28"><circle cx="14" cy="14" r="12" fill="none" stroke="#1a3a5c" strokeWidth="1.5" /><circle cx="14" cy="14" r="6" fill="none" stroke="#1a3a5c" strokeWidth="1" /></svg>
@@ -314,21 +210,15 @@ export const HistoriaCompletaPrint = ({ paciente, historia, numeroHistoria }: Hi
           </div>
           <div style={{ padding: '2px 6px', fontSize: '9px', minHeight: '18px' }}>{cell(historia.examenExterno)}</div>
         </div>
-
-        {/* CFTA-MOSCOPIA */}
         <div style={{ border: '1px solid #1a3a5c' }}>
           <div className="section-header">8. CFTA-Moscopia</div>
           <div style={{ display: 'flex', justifyContent: 'space-around', padding: '4px', borderBottom: '1px solid #1a3a5c' }}>
             <div style={{ textAlign: 'center' }}>
-              <svg width="28" height="28" viewBox="0 0 28 28">
-                <polygon points="14,2 26,26 2,26" fill="none" stroke="#1a3a5c" strokeWidth="1.5" />
-              </svg>
+              <svg width="28" height="28" viewBox="0 0 28 28"><polygon points="14,2 26,26 2,26" fill="none" stroke="#1a3a5c" strokeWidth="1.5" /></svg>
               <div style={{ fontSize: '7px' }}>OD</div>
             </div>
             <div style={{ textAlign: 'center' }}>
-              <svg width="28" height="28" viewBox="0 0 28 28">
-                <polygon points="14,26 26,2 2,2" fill="none" stroke="#1a3a5c" strokeWidth="1.5" />
-              </svg>
+              <svg width="28" height="28" viewBox="0 0 28 28"><polygon points="14,26 26,2 2,2" fill="none" stroke="#1a3a5c" strokeWidth="1.5" /></svg>
               <div style={{ fontSize: '7px' }}>OI</div>
             </div>
           </div>
@@ -342,34 +232,24 @@ export const HistoriaCompletaPrint = ({ paciente, historia, numeroHistoria }: Hi
 
       {/* ── SUBJETIVO + TESTS + QUERATOMETRÍA ── */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '4px', marginBottom: '4px' }}>
-
-        {/* SUBJETIVO */}
         <div style={{ border: '1px solid #1a3a5c' }}>
           <div className="section-header">11. Subjetivo</div>
           <table className="hc-table">
-            <thead>
-              <tr><th></th><th>AV</th><th>ADD</th></tr>
-            </thead>
+            <thead><tr><th></th><th>ESF</th><th>CYL</th><th>EJE</th><th>AV</th><th>ADD</th></tr></thead>
             <tbody>
               <tr>
                 <td style={{ fontWeight: 'bold', background: '#eef2f7' }}>OD</td>
-                <td>{cell(historia.subjetivoOD_av)}</td>
-                <td>{cell(historia.subjetivoOD_add)}</td>
+                <td>{cell(historia.subjetivoOD_esf)}</td><td>{cell(historia.subjetivoOD_cyl)}</td>
+                <td>{cell(historia.subjetivoOD_eje)}</td><td>{cell(historia.subjetivoOD_av)}</td><td>{cell(historia.subjetivoOD_add)}</td>
               </tr>
               <tr>
                 <td style={{ fontWeight: 'bold', background: '#eef2f7' }}>OI</td>
-                <td>{cell(historia.subjetivoOI_av)}</td>
-                <td>{cell(historia.subjetivoOI_add)}</td>
+                <td>{cell(historia.subjetivoOI_esf)}</td><td>{cell(historia.subjetivoOI_cyl)}</td>
+                <td>{cell(historia.subjetivoOI_eje)}</td><td>{cell(historia.subjetivoOI_av)}</td><td>{cell(historia.subjetivoOI_add)}</td>
               </tr>
             </tbody>
           </table>
-          <div style={{ padding: '2px 6px' }}>
-            <div><span className="field-label">Refracción OD: </span><span style={{ fontSize: '9px' }}>{cell(historia.refraccionOD)}</span></div>
-            <div><span className="field-label">Refracción OI: </span><span style={{ fontSize: '9px' }}>{cell(historia.refraccionOI)}</span></div>
-          </div>
         </div>
-
-        {/* TESTS */}
         <div style={{ border: '1px solid #1a3a5c' }}>
           <div className="section-header">12. Tests</div>
           <div style={{ padding: '3px 6px' }}>
@@ -378,70 +258,58 @@ export const HistoriaCompletaPrint = ({ paciente, historia, numeroHistoria }: Hi
             <div style={{ fontSize: '9px' }}>{cell(historia.testEstereopsis)}</div>
           </div>
         </div>
-
-        {/* QUERATOMETRÍA */}
         <div style={{ border: '1px solid #1a3a5c' }}>
           <div className="section-header">9. Queratometría</div>
-          <div style={{ padding: '3px 6px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2px' }}>
-              <div><span className="field-label">OD: </span><span style={{ fontSize: '9px' }}>{cell(historia.queratometria)}</span></div>
-              <div><span className="field-label">OI: </span></div>
-            </div>
-          </div>
+          <table className="hc-table">
+            <thead><tr><th></th><th>ESF</th><th>CYL</th><th>EJE</th></tr></thead>
+            <tbody>
+              <tr>
+                <td style={{ fontWeight: 'bold', background: '#eef2f7' }}>OD</td>
+                <td>{cell(historia.queratometriaOD_esf)}</td><td>{cell(historia.queratometriaOD_cyl)}</td><td>{cell(historia.queratometriaOD_eje)}</td>
+              </tr>
+              <tr>
+                <td style={{ fontWeight: 'bold', background: '#eef2f7' }}>OI</td>
+                <td>{cell(historia.queratometriaOI_esf)}</td><td>{cell(historia.queratometriaOI_cyl)}</td><td>{cell(historia.queratometriaOI_eje)}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
       {/* ── REFRACCIÓN (10) + FÓRMULA FINAL (14) ── */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px', marginBottom: '4px' }}>
-
-        {/* REFRACCIÓN */}
         <div style={{ border: '1px solid #1a3a5c' }}>
           <div className="section-header">10. Refracción</div>
           <table className="hc-table">
-            <thead>
-              <tr><th></th><th>Esf</th><th>Cyl</th><th>Eje</th><th>Add</th><th>DNP</th><th>AV</th></tr>
-            </thead>
+            <thead><tr><th></th><th>Esf</th><th>Cyl</th><th>Eje</th><th>Add</th><th>DNP</th><th>AV</th></tr></thead>
             <tbody>
               <tr>
                 <td style={{ fontWeight: 'bold', background: '#eef2f7' }}>OD</td>
-                <td></td><td></td><td></td><td></td><td></td><td></td>
+                <td>{cell(historia.refraccionOD_esf)}</td><td>{cell(historia.refraccionOD_cyl)}</td><td>{cell(historia.refraccionOD_eje)}</td>
+                <td>{cell(historia.refraccionOD_add)}</td><td>{cell(historia.refraccionOD_dnp)}</td><td>{cell(historia.refraccionOD_av)}</td>
               </tr>
               <tr>
                 <td style={{ fontWeight: 'bold', background: '#eef2f7' }}>OI</td>
-                <td></td><td></td><td></td><td></td><td></td><td></td>
+                <td>{cell(historia.refraccionOI_esf)}</td><td>{cell(historia.refraccionOI_cyl)}</td><td>{cell(historia.refraccionOI_eje)}</td>
+                <td>{cell(historia.refraccionOI_add)}</td><td>{cell(historia.refraccionOI_dnp)}</td><td>{cell(historia.refraccionOI_av)}</td>
               </tr>
             </tbody>
           </table>
-          <div style={{ padding: '2px 4px' }}>
-            <span className="field-label">Observ.: </span>
-          </div>
         </div>
-
-        {/* FÓRMULA FINAL */}
         <div style={{ border: '1px solid #1a3a5c' }}>
           <div className="section-header">14. Fórmula Final</div>
           <table className="hc-table">
-            <thead>
-              <tr><th></th><th>Esf</th><th>Cyl</th><th>Eje</th><th>Add</th><th>DNP</th><th>AV</th></tr>
-            </thead>
+            <thead><tr><th></th><th>Esf</th><th>Cyl</th><th>Eje</th><th>Add</th><th>DNP</th><th>AV</th></tr></thead>
             <tbody>
               <tr>
                 <td style={{ fontWeight: 'bold', background: '#eef2f7' }}>OD</td>
-                <td>{cell(historia.formulaOD_esf)}</td>
-                <td>{cell(historia.formulaOD_cyl)}</td>
-                <td>{cell(historia.formulaOD_eje)}</td>
-                <td>{cell(historia.formulaOD_add)}</td>
-                <td>{cell(historia.formulaOD_dnp)}</td>
-                <td>{cell(historia.formulaOD_av)}</td>
+                <td>{cell(historia.formulaOD_esf)}</td><td>{cell(historia.formulaOD_cyl)}</td><td>{cell(historia.formulaOD_eje)}</td>
+                <td>{cell(historia.formulaOD_add)}</td><td>{cell(historia.formulaOD_dnp)}</td><td>{cell(historia.formulaOD_av)}</td>
               </tr>
               <tr>
                 <td style={{ fontWeight: 'bold', background: '#eef2f7' }}>OI</td>
-                <td>{cell(historia.formulaOI_esf)}</td>
-                <td>{cell(historia.formulaOI_cyl)}</td>
-                <td>{cell(historia.formulaOI_eje)}</td>
-                <td>{cell(historia.formulaOI_add)}</td>
-                <td>{cell(historia.formulaOI_dnp)}</td>
-                <td>{cell(historia.formulaOI_av)}</td>
+                <td>{cell(historia.formulaOI_esf)}</td><td>{cell(historia.formulaOI_cyl)}</td><td>{cell(historia.formulaOI_eje)}</td>
+                <td>{cell(historia.formulaOI_add)}</td><td>{cell(historia.formulaOI_dnp)}</td><td>{cell(historia.formulaOI_av)}</td>
               </tr>
               <tr>
                 <td colSpan={7} style={{ textAlign: 'left', padding: '2px 4px' }}>
@@ -454,7 +322,7 @@ export const HistoriaCompletaPrint = ({ paciente, historia, numeroHistoria }: Hi
         </div>
       </div>
 
-      {/* ── DIAGNÓSTICO (15) + TRATAMIENTO (16) + CONTROLES (17) ── */}
+      {/* ── DIAGNÓSTICO + TRATAMIENTO + CONTROLES ── */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '4px', marginBottom: '4px' }}>
         <div style={{ border: '1px solid #1a3a5c' }}>
           <div className="section-header">15. Diagnóstico</div>
@@ -495,7 +363,6 @@ export const HistoriaCompletaPrint = ({ paciente, historia, numeroHistoria }: Hi
           </div>
         </div>
       </div>
-
     </div>
   );
 };
