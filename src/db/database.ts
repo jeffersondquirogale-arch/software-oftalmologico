@@ -64,15 +64,16 @@ export interface HistoriaClinica {
   cftaMoscopiaOI?: string;
   cftaObservaciones?: string;
 
-  // Queratometría (tabla con ESF/CYL/EJE por ojo)
+  // Queratometría
   queratometriaOD_esf?: string;
   queratometriaOD_cyl?: string;
   queratometriaOD_eje?: string;
   queratometriaOI_esf?: string;
   queratometriaOI_cyl?: string;
   queratometriaOI_eje?: string;
+  queratometriaObservaciones?: string;
 
-  // Subjetivo (tabla con ESF/CYL/EJE/AV/ADD por ojo)
+  // Subjetivo
   subjetivoOD_esf?: string;
   subjetivoOD_cyl?: string;
   subjetivoOD_eje?: string;
@@ -84,7 +85,7 @@ export interface HistoriaClinica {
   subjetivoOI_av?: string;
   subjetivoOI_add?: string;
 
-  // Refracción (tabla con ESF/CYL/EJE/ADD/DNP/AV por ojo)
+  // Refracción
   refraccionOD_esf?: string;
   refraccionOD_cyl?: string;
   refraccionOD_eje?: string;
@@ -99,8 +100,13 @@ export interface HistoriaClinica {
   refraccionOI_av?: string;
 
   // Tests
-  testColor?: string;
-  testEstereopsis?: string;
+  testColor?: string;        // legacy — no usar
+  testEstereopsis?: string;  // legacy — no usar
+  testColorOD?: string;
+  testColorOI?: string;
+  testColorObservaciones?: string;
+  testEstereopsisResultado?: string;
+  testEstereopsisObservaciones?: string;
 
   // Fórmula final
   formulaOD_esf?: string;
