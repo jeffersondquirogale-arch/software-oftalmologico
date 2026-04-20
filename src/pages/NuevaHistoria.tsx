@@ -11,7 +11,7 @@ import { AgudezaVisualTab } from '../components/Historia/AgudezaVisualTab';
 import { MotilidadTab } from '../components/Historia/MotilidadTab';
 import { ExamenExternoTab } from '../components/Historia/ExamenExternoTab';
 import { ExamenExternoSoloTab } from '../components/Historia/ExamenExternoSoloTab';
-import { QueratometriaTab } from './QueratometriaTab';
+import { QueratometriaTab } from '../components/Historia/QueratometriaTab';
 import { SubjetivoTab } from '../components/Historia/SubjetivoTab';
 import { TestsTab } from '../components/Historia/TestsTab';
 import { FormulaTab } from '../components/Historia/FormulaTab';
