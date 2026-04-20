@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Eye, Lock, User } from 'lucide-react';
+import { Eye, EyeOff, Lock, User } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
 export const Login = () => {
@@ -8,6 +8,7 @@ export const Login = () => {
   const { login } = useAuth();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -15,86 +16,102 @@ export const Login = () => {
     e.preventDefault();
     setError('');
     setLoading(true);
-
     const ok = login(username, password);
     setLoading(false);
-
-    if (ok) {
-      navigate('/', { replace: true });
-    } else {
-      setError('Usuario o contraseña incorrectos.');
-    }
+    if (ok) navigate('/', { replace: true });
+    else setError('Usuario o contraseña incorrectos.');
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="bg-surface rounded-2xl shadow-xl border border-border overflow-hidden">
-          <div className="bg-primary p-8 text-center">
-            <div className="flex justify-center mb-3">
-              <Eye className="w-12 h-12 text-accent" />
-            </div>
-            <h1 className="text-3xl font-title font-bold text-accent">OptiSalud</h1>
-            <p className="text-gray-300 mt-1 text-sm">Dr. Juan D. Lozada S.</p>
-            <p className="text-gray-400 text-xs">Optómetra F.U.A.A.</p>
-          </div>
+    <div style={{ minHeight: '100vh', background: 'var(--background)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
+      <div style={{ width: '100%', maxWidth: '420px' }}>
 
-          <form onSubmit={handleSubmit} className="p-8 space-y-5">
-            <h2 className="text-xl font-title font-semibold text-primary text-center mb-6">
-              Iniciar Sesión
-            </h2>
+        {/* Logo */}
+        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+          <div style={{ width: '72px', height: '72px', borderRadius: '20px', background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+            <Eye style={{ width: '36px', height: '36px', color: '#c9a84c' }} />
+          </div>
+          <h1 style={{ margin: 0, fontSize: '32px', fontWeight: 700, fontFamily: "'Playfair Display', serif", color: 'var(--primary)' }}>
+            Biodesccion
+          </h1>
+          <p style={{ margin: '6px 0 0', fontSize: '14px', color: 'var(--text-muted)' }}>
+            Sistema de Gestión Oftalmológica
+          </p>
+        </div>
+
+        {/* Card */}
+        <div style={{ background: 'var(--surface)', borderRadius: '20px', border: '1px solid var(--border)', padding: '36px', boxShadow: '0 8px 40px rgba(0,0,0,0.08)' }}>
+          <h2 style={{ margin: '0 0 28px', fontSize: '20px', fontWeight: 700, fontFamily: "'Playfair Display', serif", color: 'var(--primary)', textAlign: 'center' }}>
+            Iniciar Sesión
+          </h2>
+
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
 
             <div>
-              <label className="block text-sm font-medium text-text mb-1">Usuario</label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '8px' }}>
+                Usuario
+              </label>
+              <div style={{ position: 'relative' }}>
+                <User style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', width: '16px', height: '16px', color: 'var(--text-muted)' }} />
                 <input
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full pl-10 pr-3 py-2.5 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                   placeholder="Ingrese su usuario"
                   autoComplete="username"
                   required
+                  style={{ width: '100%', padding: '12px 14px 12px 42px', border: '1px solid var(--border)', borderRadius: '12px', fontSize: '14px', color: 'var(--text)', background: 'var(--background)', outline: 'none', boxSizing: 'border-box', fontFamily: 'DM Sans, sans-serif', transition: 'border-color 0.15s' }}
+                  onFocus={e => (e.target as HTMLElement).style.borderColor = '#c9a84c'}
+                  onBlur={e => (e.target as HTMLElement).style.borderColor = 'var(--border)'}
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-text mb-1">Contraseña</label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '8px' }}>
+                Contraseña
+              </label>
+              <div style={{ position: 'relative' }}>
+                <Lock style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', width: '16px', height: '16px', color: 'var(--text-muted)' }} />
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-3 py-2.5 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                   placeholder="Ingrese su contraseña"
                   autoComplete="current-password"
                   required
+                  style={{ width: '100%', padding: '12px 42px 12px 42px', border: '1px solid var(--border)', borderRadius: '12px', fontSize: '14px', color: 'var(--text)', background: 'var(--background)', outline: 'none', boxSizing: 'border-box', fontFamily: 'DM Sans, sans-serif', transition: 'border-color 0.15s' }}
+                  onFocus={e => (e.target as HTMLElement).style.borderColor = '#c9a84c'}
+                  onBlur={e => (e.target as HTMLElement).style.borderColor = 'var(--border)'}
                 />
+                <button type="button" onClick={() => setShowPassword(!showPassword)}
+                  style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: 0 }}>
+                  {showPassword
+                    ? <EyeOff style={{ width: '16px', height: '16px' }} />
+                    : <Eye style={{ width: '16px', height: '16px' }} />}
+                </button>
               </div>
             </div>
 
             {error && (
-              <p className="text-danger text-sm text-center">{error}</p>
+              <div style={{ padding: '10px 14px', background: 'rgba(192,57,43,0.08)', border: '1px solid rgba(192,57,43,0.25)', borderRadius: '10px', fontSize: '13px', color: 'var(--danger)', textAlign: 'center' }}>
+                {error}
+              </div>
             )}
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2.5 bg-primary text-white rounded-lg hover:bg-primary-light transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ padding: '13px', background: 'var(--primary)', color: 'white', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer', fontFamily: 'DM Sans, sans-serif', opacity: loading ? 0.7 : 1, transition: 'opacity 0.15s', marginTop: '4px' }}
             >
               {loading ? 'Verificando...' : 'Ingresar'}
             </button>
           </form>
-
-          <div className="pb-6 text-center">
-            <p className="text-xs text-text-muted">
-              TP 1.010.201.450 | RM 3945 CTNPO
-            </p>
-          </div>
         </div>
+
+        <p style={{ textAlign: 'center', marginTop: '20px', fontSize: '12px', color: 'var(--text-muted)' }}>
+          Biodesccion © {new Date().getFullYear()}
+        </p>
       </div>
     </div>
   );

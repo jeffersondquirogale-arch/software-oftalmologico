@@ -49,16 +49,8 @@ button {
 }
 
 @media print {
-  body {
-    background-color: white;
-  }
-  
-  .no-print {
-    display: none !important;
-  }
-  
-  .print-content {
-    display: block !important;
-  }
+  @page { margin: 10mm; size: A5 portrait; }
+  html, body { margin: 0; }
+  .no-print { display: none !important; }
+  .print-content { display: block !important; }
 }
-

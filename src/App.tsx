@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { MainLayout } from './components/Layout/MainLayout';
 import { Dashboard } from './pages/Dashboard';
 import { Pacientes } from './pages/Pacientes';
@@ -9,6 +9,7 @@ import { Reportes } from './pages/Reportes';
 import { Login } from './pages/Login';
 import { Configuracion } from './pages/Configuracion';
 import { AuditLog } from './pages/AuditLog';
+import { EditarPaciente } from './pages/EditarPaciente';
 import { useEffect, type ReactNode } from 'react';
 import { useAppStore } from './store/useAppStore';
 import { useAuth } from './hooks/useAuth';
@@ -52,8 +53,10 @@ function AppRoutes() {
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/pacientes" element={<Pacientes />} />
                 <Route path="/pacientes/:id" element={<PerfilPaciente />} />
+                <Route path="/pacientes/:id/editar" element={<EditarPaciente />} />
                 <Route path="/nueva-historia" element={<NuevaHistoria />} />
                 <Route path="/nueva-historia/:pacienteId" element={<NuevaHistoria />} />
+                <Route path="/editar-historia/:historiaId" element={<NuevaHistoria />} />
                 <Route path="/citas" element={<Citas />} />
                 <Route path="/reportes" element={<DoctorRoute><Reportes /></DoctorRoute>} />
                 <Route path="/configuracion" element={<DoctorRoute><Configuracion /></DoctorRoute>} />

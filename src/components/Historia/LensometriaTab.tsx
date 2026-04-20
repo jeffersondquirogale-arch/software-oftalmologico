@@ -1,53 +1,19 @@
 import type { HistoriaClinica } from '../../db/database';
-
-interface LensometriaTabProps {
-  historia: Partial<HistoriaClinica>;
-  setHistoria: (h: Partial<HistoriaClinica>) => void;
-}
-
-const inputClass =
-  'w-full px-2 py-1 border border-border rounded focus:outline-none focus:ring-1 focus:ring-primary';
-
+import { S } from './tabStyles';
+interface LensometriaTabProps { historia: Partial<HistoriaClinica>; setHistoria: (h: Partial<HistoriaClinica>) => void; }
 export const LensometriaTab = ({ historia, setHistoria }: LensometriaTabProps) => {
-  const set = (field: keyof HistoriaClinica) => (e: React.ChangeEvent<HTMLInputElement>) =>
-    setHistoria({ ...historia, [field]: e.target.value });
-
-  return (
-    <div>
-      <h3 className="text-lg font-title font-semibold text-primary mb-4">Lensometría</h3>
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="border border-border p-2 text-sm font-semibold">Ojo</th>
-              <th className="border border-border p-2 text-sm font-semibold">ESF</th>
-              <th className="border border-border p-2 text-sm font-semibold">CYL</th>
-              <th className="border border-border p-2 text-sm font-semibold">EJE</th>
-              <th className="border border-border p-2 text-sm font-semibold">ADD</th>
-              <th className="border border-border p-2 text-sm font-semibold">DNP</th>
-              <th className="border border-border p-2 text-sm font-semibold">PRIS</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td className="border border-border p-2 font-medium bg-gray-50">OD</td>
-              {(['lensOD_esf', 'lensOD_cyl', 'lensOD_eje', 'lensOD_add', 'lensOD_dnp', 'lensOD_pris'] as const).map((f) => (
-                <td key={f} className="border border-border p-2">
-                  <input type="text" value={historia[f] || ''} onChange={set(f)} className={inputClass} />
-                </td>
-              ))}
-            </tr>
-            <tr>
-              <td className="border border-border p-2 font-medium bg-gray-50">OI</td>
-              {(['lensOI_esf', 'lensOI_cyl', 'lensOI_eje', 'lensOI_add', 'lensOI_dnp', 'lensOI_pris'] as const).map((f) => (
-                <td key={f} className="border border-border p-2">
-                  <input type="text" value={historia[f] || ''} onChange={set(f)} className={inputClass} />
-                </td>
-              ))}
-            </tr>
-          </tbody>
-        </table>
-      </div>
+  const set = (field: keyof HistoriaClinica) => (e: React.ChangeEvent<HTMLInputElement>) => setHistoria({ ...historia, [field]: e.target.value });
+  const odF = ['lensOD_esf','lensOD_cyl','lensOD_eje','lensOD_add','lensOD_dnp','lensOD_pris'] as const;
+  const oiF = ['lensOI_esf','lensOI_cyl','lensOI_eje','lensOI_add','lensOI_dnp','lensOI_pris'] as const;
+  return (<div><p style={S.title}>Lensometría</p><p style={S.subtitle}>Medición de los lentes actuales</p>
+    <div style={{overflowX:'auto',borderRadius:'12px',border:'1px solid var(--border)'}}>
+      <table style={{width:'100%',borderCollapse:'collapse',fontSize:'13px'}}>
+        <thead><tr><th style={S.th}>Ojo</th>{['ESF','CYL','EJE','ADD','DNP','PRIS'].map(h=><th key={h} style={S.th}>{h}</th>)}</tr></thead>
+        <tbody>
+          <tr><td style={S.tdLabel}>OD</td>{odF.map(f=><td key={f} style={S.td}><input type="text" value={historia[f]||''} onChange={set(f)} style={S.inputSm} onFocus={S.onFocus} onBlur={S.onBlur}/></td>)}</tr>
+          <tr><td style={{...S.tdLabel,borderTop:'1px solid rgba(255,255,255,0.2)'}}>OI</td>{oiF.map(f=><td key={f} style={{...S.td,borderBottom:'none'}}><input type="text" value={historia[f]||''} onChange={set(f)} style={S.inputSm} onFocus={S.onFocus} onBlur={S.onBlur}/></td>)}</tr>
+        </tbody>
+      </table>
     </div>
-  );
+  </div>);
 };

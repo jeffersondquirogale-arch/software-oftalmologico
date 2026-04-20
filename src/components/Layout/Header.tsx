@@ -20,9 +20,7 @@ export const Header = ({ onToggleSidebar }: HeaderProps) => {
         e.preventDefault();
         setSearchOpen(true);
       }
-      if (e.key === 'Escape') {
-        setSearchOpen(false);
-      }
+      if (e.key === 'Escape') setSearchOpen(false);
     };
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
@@ -30,29 +28,79 @@ export const Header = ({ onToggleSidebar }: HeaderProps) => {
 
   return (
     <>
-      <header className="bg-surface dark:bg-gray-800 shadow-sm border-b border-border dark:border-gray-700 h-16 flex items-center px-4 sm:px-8 gap-3">
-        {/* Mobile hamburger */}
+      <header style={{
+        background: 'var(--surface)',
+        borderBottom: '1px solid var(--border)',
+        height: '64px',
+        display: 'flex',
+        alignItems: 'center',
+        padding: '0 24px',
+        gap: '12px',
+        position: 'sticky',
+        top: 0,
+        zIndex: 20,
+        boxShadow: '0 1px 8px rgba(0,0,0,0.06)',
+      }}>
+        {/* Hamburger mobile */}
         <button
           onClick={onToggleSidebar}
-          className="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+          className="lg:hidden"
+          style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            width: '40px', height: '40px', borderRadius: '10px',
+            border: '1px solid var(--border)', background: 'transparent',
+            cursor: 'pointer', flexShrink: 0, color: 'var(--text)',
+          }}
           title="Menú"
         >
-          <Menu className="w-5 h-5 text-text dark:text-gray-200" />
+          <Menu style={{ width: '18px', height: '18px' }} />
         </button>
 
-        <h2 className="text-xl sm:text-2xl font-title font-semibold text-primary dark:text-blue-300 flex-1 truncate">
-          {currentModule}
-        </h2>
+        {/* Título módulo */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <h2 style={{
+            margin: 0,
+            fontSize: '20px',
+            fontWeight: 700,
+            fontFamily: "'Playfair Display', serif",
+            color: 'var(--primary)',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+          }}>
+            {currentModule}
+          </h2>
+        </div>
 
         {/* Search button */}
         <button
           onClick={() => setSearchOpen(true)}
-          className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-text-muted dark:text-gray-400 text-sm min-h-[44px]"
+          style={{
+            display: 'flex', alignItems: 'center', gap: '8px',
+            padding: '8px 14px', borderRadius: '10px',
+            border: '1px solid var(--border)', background: 'transparent',
+            color: 'var(--text-muted)', fontSize: '13px', cursor: 'pointer',
+            fontFamily: 'DM Sans, sans-serif', whiteSpace: 'nowrap',
+            transition: 'all 0.15s',
+          }}
+          onMouseEnter={e => {
+            (e.currentTarget as HTMLElement).style.background = 'rgba(0,0,0,0.04)';
+            (e.currentTarget as HTMLElement).style.color = 'var(--text)';
+          }}
+          onMouseLeave={e => {
+            (e.currentTarget as HTMLElement).style.background = 'transparent';
+            (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)';
+          }}
           title="Buscar (Ctrl+K)"
         >
-          <Search className="w-4 h-4" />
+          <Search style={{ width: '15px', height: '15px' }} />
           <span className="hidden sm:inline">Buscar</span>
-          <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-gray-100 dark:bg-gray-700 ml-1">
+          <kbd className="hidden sm:inline-flex" style={{
+            padding: '2px 6px', borderRadius: '5px', fontSize: '10px',
+            fontWeight: 600, background: 'var(--background)',
+            border: '1px solid var(--border)', color: 'var(--text-muted)',
+            fontFamily: 'monospace',
+          }}>
             Ctrl+K
           </kbd>
         </button>
@@ -63,14 +111,22 @@ export const Header = ({ onToggleSidebar }: HeaderProps) => {
         {/* Dark mode toggle */}
         <button
           onClick={toggleTheme}
-          className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+          style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            width: '40px', height: '40px', borderRadius: '10px',
+            border: '1px solid var(--border)', background: 'transparent',
+            cursor: 'pointer', flexShrink: 0,
+            color: theme === 'dark' ? '#c9a84c' : 'var(--text)',
+            transition: 'all 0.15s',
+          }}
+          onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'rgba(0,0,0,0.04)'}
+          onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
           title={theme === 'dark' ? 'Modo claro' : 'Modo oscuro'}
         >
-          {theme === 'dark' ? (
-            <Sun className="w-5 h-5 text-accent" />
-          ) : (
-            <Moon className="w-5 h-5 text-text dark:text-gray-200" />
-          )}
+          {theme === 'dark'
+            ? <Sun style={{ width: '18px', height: '18px' }} />
+            : <Moon style={{ width: '18px', height: '18px' }} />
+          }
         </button>
       </header>
 

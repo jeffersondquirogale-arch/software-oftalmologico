@@ -23,6 +23,8 @@ export interface HistoriaClinica {
   pacienteId: number;
   fecha: string;
   motivoConsulta: string;
+
+  // Lensometría
   lensOD_esf?: string;
   lensOD_cyl?: string;
   lensOD_eje?: string;
@@ -35,6 +37,8 @@ export interface HistoriaClinica {
   lensOI_add?: string;
   lensOI_dnp?: string;
   lensOI_pris?: string;
+
+  // Agudeza Visual
   av_od_vlsc?: string;
   av_od_ph?: string;
   av_od_vpsc?: string;
@@ -48,22 +52,57 @@ export interface HistoriaClinica {
   coverTest_vl?: string;
   coverTest_vp?: string;
   hirschberg?: string;
+
+  // Motilidad
   kappaOD?: string;
   kappaOI?: string;
   versionesDUC?: string;
+
+  // Examen externo
   examenExterno?: string;
   cftaMoscopiaOD?: string;
   cftaMoscopiaOI?: string;
   cftaObservaciones?: string;
+
+  // Queratometría (tabla con ESF/CYL/EJE por ojo)
+  queratometriaOD_esf?: string;
+  queratometriaOD_cyl?: string;
+  queratometriaOD_eje?: string;
+  queratometriaOI_esf?: string;
+  queratometriaOI_cyl?: string;
+  queratometriaOI_eje?: string;
+
+  // Subjetivo (tabla con ESF/CYL/EJE/AV/ADD por ojo)
+  subjetivoOD_esf?: string;
+  subjetivoOD_cyl?: string;
+  subjetivoOD_eje?: string;
   subjetivoOD_av?: string;
   subjetivoOD_add?: string;
+  subjetivoOI_esf?: string;
+  subjetivoOI_cyl?: string;
+  subjetivoOI_eje?: string;
   subjetivoOI_av?: string;
   subjetivoOI_add?: string;
-  refraccionOD?: string;
-  refraccionOI?: string;
+
+  // Refracción (tabla con ESF/CYL/EJE/ADD/DNP/AV por ojo)
+  refraccionOD_esf?: string;
+  refraccionOD_cyl?: string;
+  refraccionOD_eje?: string;
+  refraccionOD_add?: string;
+  refraccionOD_dnp?: string;
+  refraccionOD_av?: string;
+  refraccionOI_esf?: string;
+  refraccionOI_cyl?: string;
+  refraccionOI_eje?: string;
+  refraccionOI_add?: string;
+  refraccionOI_dnp?: string;
+  refraccionOI_av?: string;
+
+  // Tests
   testColor?: string;
   testEstereopsis?: string;
-  queratometria?: string;
+
+  // Fórmula final
   formulaOD_esf?: string;
   formulaOD_cyl?: string;
   formulaOD_eje?: string;
@@ -79,6 +118,8 @@ export interface HistoriaClinica {
   formulaAlt?: string;
   formulaRx?: string;
   formulaUso?: string;
+
+  // Diagnóstico
   diagnostico?: string;
   tratamiento?: string;
   controles?: string;
@@ -117,7 +158,22 @@ export interface Attachment {
   uploadDate: string;
 }
 
+export interface Doctor {
+  id?: number;
+  nombre: string;
+  apellidos: string;
+  tp: string;
+  rm: string;
+  especialidad: string;
+  telefono?: string;
+  email?: string;
+  direccion?: string;
+  eslogan?: string;
+  activo: boolean;
+}
+
 export class OptiSaludDatabase extends Dexie {
+  doctores!: Table<Doctor>;
   pacientes!: Table<Paciente>;
   historiasClinicas!: Table<HistoriaClinica>;
   citas!: Table<Cita>;
@@ -137,6 +193,14 @@ export class OptiSaludDatabase extends Dexie {
       citas: '++id, pacienteId, fecha, estado',
       auditLog: '++id, timestamp, userId, action, entity, entityId',
       attachments: '++id, pacienteId, historiaId, uploadDate',
+    });
+    this.version(3).stores({
+      pacientes: '++id, di, nombres, apellidos, fechaRegistro',
+      historiasClinicas: '++id, pacienteId, fecha',
+      citas: '++id, pacienteId, fecha, estado',
+      auditLog: '++id, timestamp, userId, action, entity, entityId',
+      attachments: '++id, pacienteId, historiaId, uploadDate',
+      doctores: '++id, activo',
     });
   }
 }

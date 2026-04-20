@@ -24,18 +24,38 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
   ].slice(0, 5);
 
   return (
-    <div className="flex min-h-screen bg-background dark:bg-gray-900">
-      <Sidebar
-        isOpen={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
-      />
-      <div className="flex-1 lg:ml-64 flex flex-col">
-        <Header onToggleSidebar={() => setSidebarOpen((prev) => !prev)} />
-        <main className="flex-1 p-4 sm:p-8 pb-20 md:pb-8">
+    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--background)' }}>
+      {/* Sidebar — siempre visible en desktop */}
+      <div className='no-print'><Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} /></div>
+
+      {/* Contenido principal */}
+      <div style={{
+        flex: 1,
+        marginLeft: '256px', // 64 * 4 = 256px = w-64
+        display: 'flex',
+        flexDirection: 'column',
+        minWidth: 0,
+      }} className="lg:ml-64 ml-0">
+        <div className='no-print'><Header onToggleSidebar={() => setSidebarOpen(prev => !prev)} /></div>
+        <main style={{
+          flex: 1,
+          padding: '32px',
+          paddingBottom: '80px',
+          maxWidth: '1400px',
+          width: '100%',
+          boxSizing: 'border-box',
+        }} className="sm:p-8 p-4 pb-20 md:pb-8">
           {children}
         </main>
+
         {/* Mobile bottom navigation */}
-        <nav className="fixed bottom-0 left-0 right-0 bg-surface dark:bg-gray-800 border-t border-border dark:border-gray-700 flex md:hidden z-20">
+        <nav style={{
+          position: 'fixed', bottom: 0, left: 0, right: 0,
+          background: 'var(--surface)',
+          borderTop: '1px solid var(--border)',
+          display: 'flex',
+          zIndex: 20,
+        }} className="md:hidden">
           {bottomNavItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.path;
@@ -43,14 +63,22 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex-1 flex flex-col items-center justify-center py-2 min-h-[56px] transition-colors ${
-                  isActive
-                    ? 'text-primary dark:text-blue-300 font-semibold'
-                    : 'text-text-muted dark:text-gray-400'
-                }`}
+                style={{
+                  flex: 1,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '8px 4px',
+                  minHeight: '56px',
+                  textDecoration: 'none',
+                  color: isActive ? 'var(--primary)' : 'var(--text-muted)',
+                  fontWeight: isActive ? 700 : 400,
+                  transition: 'color 0.15s',
+                }}
               >
-                <Icon className="w-5 h-5" />
-                <span className="text-[10px] mt-0.5">{item.name}</span>
+                <Icon style={{ width: '20px', height: '20px' }} />
+                <span style={{ fontSize: '10px', marginTop: '2px' }}>{item.name}</span>
               </Link>
             );
           })}

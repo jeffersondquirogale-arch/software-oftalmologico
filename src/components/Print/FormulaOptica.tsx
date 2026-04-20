@@ -5,125 +5,94 @@ interface FormulaOpticaProps {
   historia: HistoriaClinica;
 }
 
-export const FormulaOptica = ({ paciente, historia }: FormulaOpticaProps) => {
-  return (
-    <div className="hidden print:block bg-white p-8 text-black">
-      <div className="text-center mb-6 border-b-2 border-primary pb-4">
-        <h1 className="text-xl font-title font-bold text-primary mb-1">
-          MEJORAR TU VISIÓN ES MI MISIÓN
-        </h1>
-        <h2 className="text-lg font-title font-semibold text-primary">DR. JUAN D. LOZADA S.</h2>
-        <p className="text-sm mt-2">Optómetra F.U.A.A. | TP 1.010.201.450 | RM 3945 CTNPO</p>
-        <div className="border-t border-gray-400 mt-2 pt-2">
-          <p className="text-xs">Consultorio de Optometría - Atención Especializada</p>
+const cell = (v?: string) => v || '—';
+
+export const FormulaOptica = ({ paciente, historia }: FormulaOpticaProps) => (
+  <div className="print-content" style={{ display:'none', fontFamily:'Arial, sans-serif', fontSize:'11px', color:'#000', background:'#fff', padding:'12mm 14mm', width:'210mm', boxSizing:'border-box' }}>
+    <style>{`@media print { .print-content { display:block !important; } .no-print { display:none !important; } * { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; } @page { size: A4 portrait; margin:0; } }`}</style>
+
+    {/* Encabezado */}
+    <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', borderBottom:'3px solid #1a3a5c', paddingBottom:'10px', marginBottom:'16px' }}>
+      <div style={{ display:'flex', alignItems:'center', gap:'12px' }}>
+        <svg width="48" height="48" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="none" stroke="#1a3a5c" strokeWidth="2"/><ellipse cx="20" cy="20" rx="14" ry="9" fill="none" stroke="#1a3a5c" strokeWidth="1.5"/><circle cx="20" cy="20" r="5" fill="#1a3a5c"/><circle cx="22" cy="18" r="1.5" fill="white"/></svg>
+        <div>
+          <div style={{ fontSize:'10px', fontWeight:'bold', color:'#1a3a5c', fontStyle:'italic' }}>MEJORAR TU VISIÓN ES MI MISIÓN</div>
+          <div style={{ fontSize:'16px', fontWeight:'bold', color:'#1a3a5c' }}>DR. Juan D. Lozada S.</div>
+          <div style={{ fontSize:'9px', color:'#555' }}>Optómetra F.U.A.A. | TP 1.010.201.450 | RM 3945 CTNPO</div>
         </div>
       </div>
-
-      <div className="mb-6">
-        <div className="grid grid-cols-2 gap-4 text-sm">
-          <div>
-            <span className="font-semibold">Paciente:</span> {paciente.nombres}{' '}
-            {paciente.apellidos}
-          </div>
-          <div>
-            <span className="font-semibold">D.I.:</span> {paciente.di}
-          </div>
-          <div>
-            <span className="font-semibold">Fecha:</span>{' '}
-            {new Date(historia.fecha).toLocaleDateString('es-ES')}
-          </div>
-          <div>
-            <span className="font-semibold">Edad:</span> {paciente.edad} años
-          </div>
-        </div>
+      <div style={{ textAlign:'right', fontSize:'10px', color:'#555' }}>
+        <div style={{ fontWeight:'bold', color:'#1a3a5c', fontSize:'11px' }}>FÓRMULA ÓPTICA</div>
+        <div>{new Date(historia.fecha).toLocaleDateString('es-ES', { year:'numeric', month:'long', day:'numeric' })}</div>
       </div>
+    </div>
 
-      <div className="border-t border-b border-gray-400 py-4 mb-6">
-        <h3 className="text-center font-bold text-lg mb-4">FÓRMULA ÓPTICA</h3>
-        <table className="w-full border-collapse text-sm">
-          <thead>
-            <tr className="bg-gray-200">
-              <th className="border border-gray-400 p-2">Ojo</th>
-              <th className="border border-gray-400 p-2">ESF</th>
-              <th className="border border-gray-400 p-2">CYL</th>
-              <th className="border border-gray-400 p-2">EJE</th>
-              <th className="border border-gray-400 p-2">ADD</th>
-              <th className="border border-gray-400 p-2">DNP</th>
-              <th className="border border-gray-400 p-2">AV</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td className="border border-gray-400 p-2 font-semibold">OD</td>
-              <td className="border border-gray-400 p-2">{historia.formulaOD_esf || '-'}</td>
-              <td className="border border-gray-400 p-2">{historia.formulaOD_cyl || '-'}</td>
-              <td className="border border-gray-400 p-2">{historia.formulaOD_eje || '-'}</td>
-              <td className="border border-gray-400 p-2">{historia.formulaOD_add || '-'}</td>
-              <td className="border border-gray-400 p-2">{historia.formulaOD_dnp || '-'}</td>
-              <td className="border border-gray-400 p-2">{historia.formulaOD_av || '-'}</td>
-            </tr>
-            <tr>
-              <td className="border border-gray-400 p-2 font-semibold">OI</td>
-              <td className="border border-gray-400 p-2">{historia.formulaOI_esf || '-'}</td>
-              <td className="border border-gray-400 p-2">{historia.formulaOI_cyl || '-'}</td>
-              <td className="border border-gray-400 p-2">{historia.formulaOI_eje || '-'}</td>
-              <td className="border border-gray-400 p-2">{historia.formulaOI_add || '-'}</td>
-              <td className="border border-gray-400 p-2">{historia.formulaOI_dnp || '-'}</td>
-              <td className="border border-gray-400 p-2">{historia.formulaOI_av || '-'}</td>
-            </tr>
-          </tbody>
-        </table>
-        {historia.formulaUso && (
-          <p className="mt-3 text-sm">
-            <span className="font-semibold">Uso:</span> {historia.formulaUso}
-          </p>
-        )}
-        {historia.formulaAlt && (
-          <p className="mt-1 text-sm">
-            <span className="font-semibold">ALT:</span> {historia.formulaAlt}
-          </p>
-        )}
-        {historia.formulaRx && (
-          <p className="mt-1 text-sm">
-            <span className="font-semibold">RX:</span> {historia.formulaRx}
-          </p>
-        )}
+    {/* Datos paciente */}
+    <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr 1fr', gap:'4px', marginBottom:'16px', padding:'10px 12px', background:'#f8fafc', border:'1px solid #d1dce8', borderRadius:'6px' }}>
+      <div><div style={{ fontSize:'8px', fontWeight:'bold', color:'#6b7a8d', textTransform:'uppercase' }}>Paciente</div><div style={{ fontWeight:'bold', fontSize:'11px' }}>{paciente.nombres} {paciente.apellidos}</div></div>
+      <div><div style={{ fontSize:'8px', fontWeight:'bold', color:'#6b7a8d', textTransform:'uppercase' }}>D.I.</div><div style={{ fontSize:'11px' }}>{paciente.di}</div></div>
+      <div><div style={{ fontSize:'8px', fontWeight:'bold', color:'#6b7a8d', textTransform:'uppercase' }}>Edad</div><div style={{ fontSize:'11px' }}>{paciente.edad} años</div></div>
+      <div><div style={{ fontSize:'8px', fontWeight:'bold', color:'#6b7a8d', textTransform:'uppercase' }}>EPS</div><div style={{ fontSize:'11px' }}>{paciente.eps}</div></div>
+    </div>
+
+    {/* Tabla fórmula */}
+    <div style={{ marginBottom:'16px' }}>
+      <div style={{ background:'#1a3a5c', color:'white', padding:'6px 12px', fontSize:'11px', fontWeight:'bold', borderRadius:'6px 6px 0 0', textTransform:'uppercase', letterSpacing:'0.05em' }}>Prescripción</div>
+      <table style={{ width:'100%', borderCollapse:'collapse', fontSize:'11px' }}>
+        <thead>
+          <tr style={{ background:'#eef2f7' }}>
+            <th style={{ padding:'8px 10px', border:'1px solid #d1dce8', textAlign:'center', fontWeight:'bold', color:'#1a3a5c' }}>Ojo</th>
+            {['ESF','CYL','EJE','ADD','DNP','AV'].map(h => <th key={h} style={{ padding:'8px 10px', border:'1px solid #d1dce8', textAlign:'center', fontWeight:'bold', color:'#1a3a5c' }}>{h}</th>)}
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style={{ padding:'10px', border:'1px solid #d1dce8', fontWeight:'bold', background:'#1a3a5c', color:'white', textAlign:'center' }}>OD</td>
+            {[historia.formulaOD_esf,historia.formulaOD_cyl,historia.formulaOD_eje,historia.formulaOD_add,historia.formulaOD_dnp,historia.formulaOD_av].map((v,i) => <td key={i} style={{ padding:'10px', border:'1px solid #d1dce8', textAlign:'center', fontSize:'12px' }}>{cell(v)}</td>)}
+          </tr>
+          <tr>
+            <td style={{ padding:'10px', border:'1px solid #d1dce8', fontWeight:'bold', background:'#1a3a5c', color:'white', textAlign:'center' }}>OI</td>
+            {[historia.formulaOI_esf,historia.formulaOI_cyl,historia.formulaOI_eje,historia.formulaOI_add,historia.formulaOI_dnp,historia.formulaOI_av].map((v,i) => <td key={i} style={{ padding:'10px', border:'1px solid #d1dce8', textAlign:'center', fontSize:'12px' }}>{cell(v)}</td>)}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    {/* Uso / Alt / Rx */}
+    <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:'10px', marginBottom:'24px' }}>
+      {[['Uso',historia.formulaUso],['ALT',historia.formulaAlt],['RX',historia.formulaRx]].map(([label,val]) => val ? (
+        <div key={label as string} style={{ padding:'8px 12px', background:'rgba(201,168,76,0.08)', border:'1px solid rgba(201,168,76,0.3)', borderRadius:'6px' }}>
+          <div style={{ fontSize:'8px', fontWeight:'bold', color:'#c9a84c', textTransform:'uppercase', marginBottom:'2px' }}>{label}</div>
+          <div style={{ fontSize:'11px', fontWeight:'bold' }}>{val}</div>
+        </div>
+      ) : null)}
+    </div>
+
+    {/* Diagnóstico */}
+    {historia.diagnostico && (
+      <div style={{ marginBottom:'16px', padding:'10px 12px', border:'1px solid #d1dce8', borderRadius:'6px' }}>
+        <div style={{ fontSize:'8px', fontWeight:'bold', color:'#6b7a8d', textTransform:'uppercase', marginBottom:'4px' }}>Diagnóstico</div>
+        <div style={{ fontSize:'11px' }}>{historia.diagnostico}</div>
       </div>
+    )}
 
-      {historia.diagnostico && (
-        <div className="mb-4">
-          <p className="text-sm">
-            <span className="font-semibold">Diagnóstico:</span> {historia.diagnostico}
-          </p>
-        </div>
-      )}
+    {/* Controles */}
+    {historia.controles && (
+      <div style={{ marginBottom:'24px', padding:'10px 12px', border:'1px solid #d1dce8', borderRadius:'6px' }}>
+        <div style={{ fontSize:'8px', fontWeight:'bold', color:'#6b7a8d', textTransform:'uppercase', marginBottom:'4px' }}>Controles</div>
+        <div style={{ fontSize:'11px' }}>{historia.controles}</div>
+      </div>
+    )}
 
-      {historia.tratamiento && (
-        <div className="mb-4">
-          <p className="text-sm">
-            <span className="font-semibold">Tratamiento:</span> {historia.tratamiento}
-          </p>
-        </div>
-      )}
-
-      {historia.controles && (
-        <div className="mb-4">
-          <p className="text-sm">
-            <span className="font-semibold">Controles:</span> {historia.controles}
-          </p>
-        </div>
-      )}
-
-      <div className="border-t border-gray-400 pt-6 mt-8">
-        <div className="flex justify-end">
-          <div className="text-center">
-            <div className="border-t border-black w-48 mb-2"></div>
-            <p className="font-semibold">DR. JUAN D. LOZADA S.</p>
-            <p className="text-xs">Optómetra F.U.A.A.</p>
-            <p className="text-xs">TP 1.010.201.450 | RM 3945 CTNPO</p>
-          </div>
+    {/* Firma */}
+    <div style={{ display:'flex', justifyContent:'flex-end', marginTop:'40px' }}>
+      <div style={{ textAlign:'center', minWidth:'200px' }}>
+        <div style={{ borderTop:'1px solid #333', paddingTop:'8px' }}>
+          <div style={{ fontWeight:'bold', fontSize:'11px' }}>DR. Juan D. Lozada S.</div>
+          <div style={{ fontSize:'9px', color:'#555' }}>Optómetra F.U.A.A.</div>
+          <div style={{ fontSize:'9px', color:'#555' }}>TP 1.010.201.450 | RM 3945 CTNPO</div>
         </div>
       </div>
     </div>
-  );
-};
+  </div>
+);

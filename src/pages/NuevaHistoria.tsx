@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Save } from 'lucide-react';
+import { Save, X } from 'lucide-react';
 import * as Tabs from '@radix-ui/react-tabs';
-import { db } from '../db/database';
+import { spGetPaciente, spAddPaciente, spAddHistoria } from '../lib/supabaseService';
 import type { Paciente, HistoriaClinica } from '../db/database';
 import { PacienteTab } from '../components/Historia/PacienteTab';
 import { MotivoTab } from '../components/Historia/MotivoTab';
@@ -30,76 +30,57 @@ export const NuevaHistoria = () => {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  const tabs = [
+    { value: 'paciente', label: 'Paciente', num: '1' },
+    { value: 'motivo', label: 'Motivo', num: '2' },
+    { value: 'lensometria', label: 'Lensometría', num: '3' },
+    { value: 'agudeza', label: 'Agudeza Visual', num: '4' },
+    { value: 'motilidad', label: 'Motilidad', num: '5' },
+    { value: 'examen', label: 'Examen Externo', num: '6' },
+    { value: 'subjetivo', label: 'Subjetivo', num: '7' },
+    { value: 'tests', label: 'Tests', num: '8' },
+    { value: 'formula', label: 'Fórmula', num: '9' },
+    { value: 'diagnostico', label: 'Diagnóstico', num: '10' },
+  ];
+
   const loadPatient = async (id: number) => {
     try {
-      const patient = await db.pacientes.get(id);
-      if (patient) {
-        setSelectedPatient(patient);
-        setActiveTab('motivo');
-      }
-    } catch {
-      alert('Error al cargar el paciente. Intente nuevamente.');
-    }
+      const patient = await spGetPaciente(id);
+      if (patient) { setSelectedPatient(patient); setActiveTab('motivo'); }
+    } catch { alert('Error al cargar el paciente.'); }
   };
 
   useEffect(() => {
-    if (pacienteId) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      loadPatient(parseInt(pacienteId));
-    }
+    if (pacienteId) loadPatient(parseInt(pacienteId));
   }, [pacienteId]);
 
   const searchPatient = async () => {
     if (!searchDI) return;
-    const patient = await db.pacientes.where('di').equals(searchDI).first();
-    if (patient) {
-      setSelectedPatient(patient);
-      setNewPatient({});
-      setActiveTab('motivo');
-    } else {
-      alert('Paciente no encontrado. Complete los datos para crear uno nuevo.');
-      setSelectedPatient(null);
-    }
+    const { supabase } = await import('../lib/supabase');
+    const { data } = await supabase.from('pacientes').select('*').eq('di', searchDI).single();
+    if (data) {
+      const { spGetPaciente: gp } = await import('../lib/supabaseService');
+      const p = await gp(data.id);
+      if (p) { setSelectedPatient(p); setNewPatient({}); setActiveTab('motivo'); }
+    } else { alert('Paciente no encontrado. Complete los datos para crear uno nuevo.'); setSelectedPatient(null); }
   };
 
   const calculateAge = (birthDate: string) => {
-    const today = new Date();
-    const birth = new Date(birthDate);
+    const today = new Date(); const birth = new Date(birthDate);
     let age = today.getFullYear() - birth.getFullYear();
-    const monthDiff = today.getMonth() - birth.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-      age--;
-    }
+    const m = today.getMonth() - birth.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
     return age;
   };
 
   const validatePatientForm = (): boolean => {
     const newErrors: Record<string, string> = {};
-
-    if (!newPatient.nombres?.trim()) {
-      newErrors.nombres = 'El nombre es obligatorio.';
-    }
-    if (!newPatient.apellidos?.trim()) {
-      newErrors.apellidos = 'Los apellidos son obligatorios.';
-    }
-    if (!newPatient.di?.trim()) {
-      newErrors.di = 'El documento de identidad es obligatorio.';
-    } else if (!/^\d+$/.test(newPatient.di.trim())) {
-      newErrors.di = 'El documento de identidad debe contener solo números.';
-    }
-    if (!newPatient.fechaNacimiento) {
-      newErrors.fechaNacimiento = 'La fecha de nacimiento es obligatoria.';
-    } else {
-      const birth = new Date(newPatient.fechaNacimiento);
-      const today = new Date();
-      if (isNaN(birth.getTime()) || birth > today) {
-        newErrors.fechaNacimiento = 'Ingrese una fecha de nacimiento válida.';
-      }
-    }
-    if (newPatient.telefono && !/^\d+$/.test(newPatient.telefono.trim())) {
-      newErrors.telefono = 'El teléfono debe contener solo números.';
-    }
-
+    if (!newPatient.nombres?.trim()) newErrors.nombres = 'El nombre es obligatorio.';
+    if (!newPatient.apellidos?.trim()) newErrors.apellidos = 'Los apellidos son obligatorios.';
+    if (!newPatient.di?.trim()) newErrors.di = 'El D.I. es obligatorio.';
+    else if (!/^\d+$/.test(newPatient.di.trim())) newErrors.di = 'Solo números.';
+    if (!newPatient.fechaNacimiento) newErrors.fechaNacimiento = 'La fecha es obligatoria.';
+    if (newPatient.telefono && !/^\d+$/.test(newPatient.telefono.trim())) newErrors.telefono = 'Solo números.';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -107,136 +88,181 @@ export const NuevaHistoria = () => {
   const handleSave = async () => {
     try {
       let patientId: number;
-
-      if (selectedPatient) {
-        patientId = selectedPatient.id!;
-      } else {
-        if (!validatePatientForm()) {
-          setActiveTab('paciente');
-          return;
-        }
-
+      if (selectedPatient) { patientId = selectedPatient.id!; }
+      else {
+        if (!validatePatientForm()) { setActiveTab('paciente'); return; }
         const edad = calculateAge(newPatient.fechaNacimiento!);
-        patientId = (await db.pacientes.add({
-          ...newPatient,
-          edad,
-        } as Paciente)) as number;
+        patientId = await spAddPaciente({ ...newPatient, edad } as any);
       }
-
-      if (!historia.motivoConsulta) {
-        alert('Por favor ingrese el motivo de consulta.');
-        setActiveTab('motivo');
-        return;
-      }
-
-      const newHistoria: HistoriaClinica = {
-        ...historia,
-        pacienteId: patientId,
-        fecha: historia.fecha || new Date().toISOString().split('T')[0],
-        motivoConsulta: historia.motivoConsulta || '',
-      };
-
-      await db.historiasClinicas.add(newHistoria);
-
+      if (!historia.motivoConsulta) { alert('Ingrese el motivo de consulta.'); setActiveTab('motivo'); return; }
+      await spAddHistoria({ ...historia, pacienteId: patientId, fecha: historia.fecha || new Date().toISOString().split('T')[0], motivoConsulta: historia.motivoConsulta || '' } as any);
       alert('Historia clínica guardada exitosamente.');
       navigate(`/pacientes/${patientId}`);
-    } catch (error) {
-      console.error('Error saving historia:', error);
-      alert('Error al guardar la historia clínica. Intente nuevamente.');
-    }
+    } catch (error) { console.error(error); alert('Error al guardar.'); }
   };
 
-  const tabs = [
-    { value: 'paciente', label: '1. Paciente' },
-    { value: 'motivo', label: '2. Motivo' },
-    { value: 'lensometria', label: '3. Lensometría' },
-    { value: 'agudeza', label: '4. Agudeza Visual' },
-    { value: 'motilidad', label: '5. Motilidad' },
-    { value: 'examen', label: '6. Examen Externo' },
-    { value: 'subjetivo', label: '7. Subjetivo' },
-    { value: 'tests', label: '8. Tests' },
-    { value: 'formula', label: '9. Fórmula' },
-    { value: 'diagnostico', label: '10. Diagnóstico' },
-  ];
+  const activeIndex = tabs.findIndex(t => t.value === activeTab);
 
   return (
-    <div className="space-y-6">
-      <Tabs.Root value={activeTab} onValueChange={setActiveTab}>
-        <Tabs.List className="flex gap-2 overflow-x-auto pb-2 border-b border-border">
-          {tabs.map((tab) => (
-            <Tabs.Trigger
-              key={tab.value}
-              value={tab.value}
-              className={`px-4 py-2 rounded-t-lg text-sm font-medium whitespace-nowrap transition-colors ${
-                activeTab === tab.value
-                  ? 'bg-primary text-white'
-                  : 'bg-surface text-text-muted hover:bg-gray-100'
-              }`}
-            >
-              {tab.label}
-            </Tabs.Trigger>
-          ))}
-        </Tabs.List>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
 
-        <div className="bg-surface rounded-lg shadow-md p-6 border border-border mt-4">
+      {/* Header */}
+      <div style={{ marginBottom: '24px' }}>
+        <h1 style={{ margin: 0, fontSize: '28px', fontWeight: 700, fontFamily: "'Playfair Display', serif", color: 'var(--primary)' }}>
+          Nueva Historia Clínica
+        </h1>
+        <p style={{ margin: '4px 0 0', fontSize: '14px', color: 'var(--text-muted)' }}>
+          {new Date().toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+        </p>
+      </div>
+
+      <Tabs.Root value={activeTab} onValueChange={setActiveTab}>
+
+        {/* Tab bar */}
+        <div style={{
+          background: 'var(--surface)',
+          borderRadius: '16px 16px 0 0',
+          border: '1px solid var(--border)',
+          borderBottom: 'none',
+          padding: '16px 20px 0',
+          overflowX: 'auto',
+        }}>
+          <Tabs.List style={{ display: 'flex', gap: '4px', minWidth: 'max-content' }}>
+            {tabs.map((tab, idx) => {
+              const isActive = activeTab === tab.value;
+              const isPast = idx < activeIndex;
+              return (
+                <Tabs.Trigger
+                  key={tab.value}
+                  value={tab.value}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '8px 14px',
+                    borderRadius: '8px 8px 0 0',
+                    border: 'none',
+                    background: isActive
+                      ? 'var(--primary)'
+                      : isPast
+                      ? 'rgba(76,201,122,0.1)'
+                      : 'transparent',
+                    color: isActive ? 'white' : isPast ? '#4cc97a' : 'var(--text-muted)',
+                    fontSize: '13px',
+                    fontWeight: isActive ? 700 : 500,
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap',
+                    transition: 'all 0.15s',
+                    fontFamily: 'DM Sans, sans-serif',
+                  }}
+                >
+                  <span style={{
+                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                    width: '20px', height: '20px', borderRadius: '50%', fontSize: '11px', fontWeight: 700,
+                    background: isActive ? 'rgba(255,255,255,0.2)' : isPast ? 'rgba(76,201,122,0.2)' : 'rgba(0,0,0,0.06)',
+                    color: isActive ? 'white' : isPast ? '#4cc97a' : 'var(--text-muted)',
+                    flexShrink: 0,
+                  }}>
+                    {isPast ? '✓' : tab.num}
+                  </span>
+                  {tab.label}
+                </Tabs.Trigger>
+              );
+            })}
+          </Tabs.List>
+        </div>
+
+        {/* Content */}
+        <div style={{
+          background: 'var(--surface)',
+          border: '1px solid var(--border)',
+          borderTop: '2px solid var(--primary)',
+          padding: '28px',
+          minHeight: '400px',
+        }}>
           <Tabs.Content value="paciente">
-            <PacienteTab
-              searchDI={searchDI}
-              setSearchDI={setSearchDI}
-              onSearch={searchPatient}
-              selectedPatient={selectedPatient}
-              onClearPatient={() => { setSelectedPatient(null); setSearchDI(''); }}
-              newPatient={newPatient}
-              setNewPatient={setNewPatient}
-              errors={errors}
-              setErrors={setErrors}
-            />
+            <PacienteTab searchDI={searchDI} setSearchDI={setSearchDI} onSearch={searchPatient}
+              selectedPatient={selectedPatient} onClearPatient={() => { setSelectedPatient(null); setSearchDI(''); }}
+              newPatient={newPatient} setNewPatient={setNewPatient} errors={errors} setErrors={setErrors} />
           </Tabs.Content>
-          <Tabs.Content value="motivo">
-            <MotivoTab historia={historia} setHistoria={setHistoria} />
-          </Tabs.Content>
-          <Tabs.Content value="lensometria">
-            <LensometriaTab historia={historia} setHistoria={setHistoria} />
-          </Tabs.Content>
-          <Tabs.Content value="agudeza">
-            <AgudezaVisualTab historia={historia} setHistoria={setHistoria} />
-          </Tabs.Content>
-          <Tabs.Content value="motilidad">
-            <MotilidadTab historia={historia} setHistoria={setHistoria} />
-          </Tabs.Content>
-          <Tabs.Content value="examen">
-            <ExamenExternoTab historia={historia} setHistoria={setHistoria} />
-          </Tabs.Content>
-          <Tabs.Content value="subjetivo">
-            <SubjetivoTab historia={historia} setHistoria={setHistoria} />
-          </Tabs.Content>
-          <Tabs.Content value="tests">
-            <TestsTab historia={historia} setHistoria={setHistoria} />
-          </Tabs.Content>
-          <Tabs.Content value="formula">
-            <FormulaTab historia={historia} setHistoria={setHistoria} />
-          </Tabs.Content>
-          <Tabs.Content value="diagnostico">
-            <DiagnosticoTab historia={historia} setHistoria={setHistoria} />
-          </Tabs.Content>
+          <Tabs.Content value="motivo"><MotivoTab historia={historia} setHistoria={setHistoria} /></Tabs.Content>
+          <Tabs.Content value="lensometria"><LensometriaTab historia={historia} setHistoria={setHistoria} /></Tabs.Content>
+          <Tabs.Content value="agudeza"><AgudezaVisualTab historia={historia} setHistoria={setHistoria} /></Tabs.Content>
+          <Tabs.Content value="motilidad"><MotilidadTab historia={historia} setHistoria={setHistoria} /></Tabs.Content>
+          <Tabs.Content value="examen"><ExamenExternoTab historia={historia} setHistoria={setHistoria} /></Tabs.Content>
+          <Tabs.Content value="subjetivo"><SubjetivoTab historia={historia} setHistoria={setHistoria} /></Tabs.Content>
+          <Tabs.Content value="tests"><TestsTab historia={historia} setHistoria={setHistoria} /></Tabs.Content>
+          <Tabs.Content value="formula"><FormulaTab historia={historia} setHistoria={setHistoria} /></Tabs.Content>
+          <Tabs.Content value="diagnostico"><DiagnosticoTab historia={historia} setHistoria={setHistoria} /></Tabs.Content>
+        </div>
+
+        {/* Footer navigation */}
+        <div style={{
+          background: 'var(--surface)',
+          borderRadius: '0 0 16px 16px',
+          border: '1px solid var(--border)',
+          borderTop: 'none',
+          padding: '16px 28px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '12px',
+        }}>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            {activeIndex > 0 && (
+              <button
+                onClick={() => setActiveTab(tabs[activeIndex - 1].value)}
+                style={{
+                  padding: '9px 20px', borderRadius: '10px', fontSize: '13px', fontWeight: 600,
+                  border: '1px solid var(--border)', background: 'transparent',
+                  color: 'var(--text)', cursor: 'pointer',
+                }}
+              >
+                ← Anterior
+              </button>
+            )}
+            {activeIndex < tabs.length - 1 && (
+              <button
+                onClick={() => setActiveTab(tabs[activeIndex + 1].value)}
+                style={{
+                  padding: '9px 20px', borderRadius: '10px', fontSize: '13px', fontWeight: 600,
+                  border: '1px solid var(--primary)', background: 'transparent',
+                  color: 'var(--primary)', cursor: 'pointer',
+                }}
+              >
+                Siguiente →
+              </button>
+            )}
+          </div>
+
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button
+              onClick={() => navigate('/pacientes')}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '6px',
+                padding: '9px 20px', borderRadius: '10px', fontSize: '13px', fontWeight: 600,
+                border: '1px solid var(--border)', background: 'transparent',
+                color: 'var(--text-muted)', cursor: 'pointer',
+              }}
+            >
+              <X style={{ width: '14px', height: '14px' }} />
+              Cancelar
+            </button>
+            <button
+              onClick={handleSave}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '8px',
+                padding: '9px 24px', borderRadius: '10px', fontSize: '13px', fontWeight: 700,
+                border: 'none', background: 'var(--primary)',
+                color: 'white', cursor: 'pointer',
+              }}
+            >
+              <Save style={{ width: '15px', height: '15px' }} />
+              Guardar Historia
+            </button>
+          </div>
         </div>
       </Tabs.Root>
-
-      <div className="flex justify-end gap-4 bg-surface rounded-lg shadow-md p-6 border border-border">
-        <button
-          onClick={() => navigate('/pacientes')}
-          className="px-6 py-2 border border-border rounded-lg hover:bg-gray-100 transition-colors"
-        >
-          Cancelar
-        </button>
-        <button
-          onClick={handleSave}
-          className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-light transition-colors flex items-center gap-2"
-        >
-          <Save className="w-4 h-4" />
-          Guardar Historia Clínica
-        </button>
-      </div>
     </div>
   );
 };

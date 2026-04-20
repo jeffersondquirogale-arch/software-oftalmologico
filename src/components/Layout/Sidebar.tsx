@@ -22,87 +22,155 @@ export const Sidebar = ({ isOpen = true, onClose }: SidebarProps) => {
     { name: 'Nueva Historia', path: '/nueva-historia', icon: FileText, roles: ['doctor', 'asistente'] },
     { name: 'Citas', path: '/citas', icon: Calendar, roles: ['doctor', 'asistente'] },
     { name: 'Reportes', path: '/reportes', icon: BarChart3, roles: ['doctor'] },
-    { name: 'Registro de Auditoría', path: '/audit', icon: ClipboardList, roles: ['doctor'] },
+    { name: 'Auditoría', path: '/audit', icon: ClipboardList, roles: ['doctor'] },
     { name: 'Configuración', path: '/configuracion', icon: Settings, roles: ['doctor'] },
   ];
 
-  const visibleItems = menuItems.filter((item) =>
+  const visibleItems = menuItems.filter(item =>
     !user?.role || item.roles.includes(user.role)
   );
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login', { replace: true });
-  };
-
-  const handleNavClick = (name: string) => {
-    setCurrentModule(name);
-    onClose?.();
-  };
+  const handleLogout = () => { logout(); navigate('/login', { replace: true }); };
+  const handleNavClick = (name: string) => { setCurrentModule(name); onClose?.(); };
 
   return (
     <>
-      {/* Overlay for mobile */}
+      {/* Overlay mobile */}
       {isOpen && onClose && (
         <div
-          className="fixed inset-0 bg-black/40 z-30 lg:hidden"
           onClick={onClose}
+          style={{
+            position: 'fixed', inset: 0,
+            background: 'rgba(0,0,0,0.5)',
+            zIndex: 30,
+          }}
+          className="lg:hidden"
         />
       )}
 
-      <div
-        className={`fixed left-0 top-0 h-screen w-64 bg-primary text-white shadow-xl flex flex-col z-40 transition-transform duration-300 ${
-          isOpen ? 'translate-x-0' : '-translate-x-full'
-        } lg:translate-x-0`}
+      <div style={{
+        position: 'fixed',
+        left: 0, top: 0,
+        height: '100vh',
+        width: '256px',
+        background: '#1a3a5c',
+        color: 'white',
+        display: 'flex',
+        flexDirection: 'column',
+        zIndex: 40,
+        boxShadow: '4px 0 24px rgba(0,0,0,0.15)',
+        transform: isOpen ? 'translateX(0)' : 'translateX(-100%)',
+        transition: 'transform 0.3s ease',
+      }}
+      className="lg:translate-x-0"
       >
-        <div className="p-6 border-b border-primary-light">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-3">
-              <Eye className="w-8 h-8 text-accent" />
-              <h1 className="text-2xl font-title font-bold text-accent">OptiSalud</h1>
+        {/* Logo */}
+        <div style={{
+          padding: '24px 20px',
+          borderBottom: '1px solid rgba(255,255,255,0.1)',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{
+                width: '36px', height: '36px',
+                background: 'rgba(201,168,76,0.2)',
+                borderRadius: '10px',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                flexShrink: 0,
+              }}>
+                <Eye style={{ width: '20px', height: '20px', color: '#c9a84c' }} />
+              </div>
+              <h1 style={{
+                margin: 0,
+                fontSize: '20px',
+                fontWeight: 700,
+                color: '#c9a84c',
+                fontFamily: "'Playfair Display', serif",
+              }}>
+                OptiSalud
+              </h1>
             </div>
             <button
               onClick={onClose}
-              aria-label="Cerrar menú"
-              className="lg:hidden text-gray-400 hover:text-white min-h-[44px] min-w-[44px] flex items-center justify-center"
+              className="lg:hidden"
+              style={{
+                background: 'none', border: 'none', cursor: 'pointer',
+                color: 'rgba(255,255,255,0.5)', padding: '4px',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}
             >
-              <X className="w-5 h-5" />
+              <X style={{ width: '18px', height: '18px' }} />
             </button>
           </div>
-          <p className="text-sm text-gray-300 font-light">Dr. Juan D. Lozada S.</p>
-          <p className="text-xs text-gray-400 mt-1">Optómetra F.U.A.A.</p>
+          <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.8)', fontWeight: 500 }}>
+            Dr. Juan D. Lozada S.
+          </p>
+          <p style={{ margin: '2px 0 0', fontSize: '11px', color: 'rgba(255,255,255,0.5)' }}>
+            Optómetra F.U.A.A.
+          </p>
           {user && (
-            <div className="mt-3 flex items-center gap-2">
-              <span className="text-xs text-gray-300">{user.username}</span>
-              <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${
-                isDoctor
-                  ? 'bg-accent text-primary'
-                  : 'bg-gray-500 text-white'
-              }`}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '10px' }}>
+              <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.7)' }}>{user.username}</span>
+              <span style={{
+                fontSize: '10px', padding: '2px 8px', borderRadius: '20px',
+                fontWeight: 700,
+                background: isDoctor ? '#c9a84c' : 'rgba(255,255,255,0.15)',
+                color: isDoctor ? '#1a3a5c' : 'white',
+              }}>
                 {isDoctor ? 'Doctor' : 'Asistente'}
               </span>
             </div>
           )}
         </div>
 
-        <nav className="flex-1 p-4 overflow-y-auto">
-          <ul className="space-y-2">
+        {/* Navegación */}
+        <nav style={{ flex: 1, padding: '16px 12px', overflowY: 'auto' }}>
+          <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: '4px' }}>
             {visibleItems.map((item) => {
               const Icon = item.icon;
-              const isActive = location.pathname === item.path;
+              const isActive = location.pathname === item.path ||
+                (item.path !== '/' && location.pathname.startsWith(item.path));
               return (
                 <li key={item.path}>
                   <Link
                     to={item.path}
                     onClick={() => handleNavClick(item.name)}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all min-h-[44px] ${
-                      isActive
-                        ? 'bg-accent text-primary font-semibold'
-                        : 'text-gray-300 hover:bg-primary-light hover:text-white'
-                    }`}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px',
+                      padding: '10px 14px',
+                      borderRadius: '10px',
+                      textDecoration: 'none',
+                      transition: 'all 0.15s',
+                      background: isActive ? '#c9a84c' : 'transparent',
+                      color: isActive ? '#1a3a5c' : 'rgba(255,255,255,0.75)',
+                      fontWeight: isActive ? 700 : 400,
+                    }}
+                    onMouseEnter={e => {
+                      if (!isActive) {
+                        (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.08)';
+                        (e.currentTarget as HTMLElement).style.color = 'white';
+                      }
+                    }}
+                    onMouseLeave={e => {
+                      if (!isActive) {
+                        (e.currentTarget as HTMLElement).style.background = 'transparent';
+                        (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.75)';
+                      }
+                    }}
                   >
-                    <Icon className="w-5 h-5" />
-                    <span className="text-sm">{item.name}</span>
+                    <Icon style={{ width: '18px', height: '18px', flexShrink: 0 }} />
+                    <span style={{ fontSize: '14px' }}>{item.name}</span>
+                    {isActive && (
+                      <div style={{
+                        marginLeft: 'auto',
+                        width: '6px', height: '6px',
+                        borderRadius: '50%',
+                        background: '#1a3a5c',
+                        flexShrink: 0,
+                      }} />
+                    )}
                   </Link>
                 </li>
               );
@@ -110,15 +178,39 @@ export const Sidebar = ({ isOpen = true, onClose }: SidebarProps) => {
           </ul>
         </nav>
 
-        <div className="p-4 border-t border-primary-light">
+        {/* Footer */}
+        <div style={{
+          padding: '12px',
+          borderTop: '1px solid rgba(255,255,255,0.1)',
+        }}>
           <button
             onClick={handleLogout}
-            className="flex items-center gap-3 px-4 py-3 w-full rounded-lg text-gray-300 hover:bg-danger hover:text-white transition-all min-h-[44px]"
+            style={{
+              display: 'flex', alignItems: 'center', gap: '12px',
+              padding: '10px 14px', width: '100%', borderRadius: '10px',
+              border: 'none', background: 'transparent',
+              color: 'rgba(255,255,255,0.6)', cursor: 'pointer',
+              fontFamily: 'DM Sans, sans-serif', fontSize: '14px',
+              transition: 'all 0.15s',
+            }}
+            onMouseEnter={e => {
+              (e.currentTarget as HTMLElement).style.background = 'rgba(192,57,43,0.3)';
+              (e.currentTarget as HTMLElement).style.color = '#ff8a80';
+            }}
+            onMouseLeave={e => {
+              (e.currentTarget as HTMLElement).style.background = 'transparent';
+              (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.6)';
+            }}
           >
-            <LogOut className="w-5 h-5" />
-            <span className="text-sm">Cerrar Sesión</span>
+            <LogOut style={{ width: '18px', height: '18px', flexShrink: 0 }} />
+            <span>Cerrar Sesión</span>
           </button>
-          <p className="text-xs text-gray-400 text-center mt-3">
+          <p style={{
+            margin: '8px 0 0',
+            fontSize: '10px',
+            color: 'rgba(255,255,255,0.3)',
+            textAlign: 'center',
+          }}>
             TP 1.010.201.450 | RM 3945 CTNPO
           </p>
         </div>

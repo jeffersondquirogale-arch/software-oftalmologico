@@ -1,42 +1,92 @@
 import type { HistoriaClinica } from '../../db/database';
+import { S } from './tabStyles';
 
 interface ExamenExternoTabProps {
   historia: Partial<HistoriaClinica>;
   setHistoria: (h: Partial<HistoriaClinica>) => void;
 }
 
-const textareaClass =
-  'w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary';
-
 export const ExamenExternoTab = ({ historia, setHistoria }: ExamenExternoTabProps) => {
   const set = (field: keyof HistoriaClinica) =>
-    (e: React.ChangeEvent<HTMLTextAreaElement>) =>
+    (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) =>
       setHistoria({ ...historia, [field]: e.target.value });
 
+  const parseExt = () => {
+    try { return JSON.parse(historia.examenExterno || "{}"); } catch { return {}; }
+  };
+  const ext = parseExt();
+  const setExt = (key: string, val: string) => {
+    const current = parseExt();
+    current[key] = val;
+    setHistoria({ ...historia, examenExterno: JSON.stringify(current) });
+  };
+
+  const inp = (key: string) => (
+    <input type="text" value={ext[key] || ""} onChange={(e) => setExt(key, e.target.value)}
+      style={{ width: "100%", padding: "6px 8px", border: "1px solid var(--border)", borderRadius: "6px", fontSize: "13px", textAlign: "center", background: "var(--background)", color: "var(--text)", outline: "none", fontFamily: "DM Sans, sans-serif" }}
+      onFocus={e => (e.target as HTMLElement).style.borderColor = "#c9a84c"}
+      onBlur={e => (e.target as HTMLElement).style.borderColor = "var(--border)"} />
+  );
+
   return (
-    <div>
-      <h3 className="text-lg font-title font-semibold text-primary mb-4">
-        Examen Externo y CFTA-Moscopia
-      </h3>
-      <div className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-text mb-1">Examen Externo</label>
-          <textarea value={historia.examenExterno || ''} onChange={set('examenExterno')} rows={4} className={textareaClass} />
+    <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+      <div>
+        <p style={S.title}>Examen Externo y CFTA-Moscopia</p>
+        <p style={S.subtitle}>Evaluación del segmento anterior</p>
+      </div>
+
+      <div>
+        <label style={S.label}>7. Examen Externo</label>
+        <div style={{ overflowX: "auto", borderRadius: "12px", border: "1px solid var(--border)" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
+            <thead>
+              <tr>
+                <th style={S.th}>Examen</th>
+                <th style={S.th}>OD</th>
+                <th style={S.th}>OI</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[["1","od1","oi1"]].map(([n, od, oi], i) => (
+                <tr key={n} style={{ background: i % 2 === 0 ? "rgba(0,0,0,0.02)" : "transparent" }}>
+                  <td style={{ ...S.tdLabel, background: "var(--primary)", color: "white", textAlign: "center", width: "60px" }}>{n}</td>
+                  <td style={{ padding: "6px 12px", borderBottom: "1px solid var(--border)" }}>{inp(od)}</td>
+                  <td style={{ padding: "6px 12px", borderBottom: "1px solid var(--border)" }}>{inp(oi)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-text mb-1">CFTA-Moscopia OD</label>
-            <textarea value={historia.cftaMoscopiaOD || ''} onChange={set('cftaMoscopiaOD')} rows={3} className={textareaClass} />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-text mb-1">CFTA-Moscopia OI</label>
-            <textarea value={historia.cftaMoscopiaOI || ''} onChange={set('cftaMoscopiaOI')} rows={3} className={textareaClass} />
-          </div>
+      </div>
+
+      <div>
+        <p style={S.sectionLabel}>8. CFTA - Moscopia</p>
+        <div style={{ overflowX: "auto", borderRadius: "12px", border: "1px solid var(--border)" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
+            <thead>
+              <tr>
+                <th style={S.th}>CFTA</th>
+                <th style={S.th}>OD</th>
+                <th style={S.th}>OI</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[["1","cfOD1","cfOI1"]].map(([n, od, oi], i) => (
+                <tr key={n} style={{ background: i % 2 === 0 ? "rgba(0,0,0,0.02)" : "transparent" }}>
+                  <td style={{ ...S.tdLabel, background: "var(--primary)", color: "white", textAlign: "center", width: "60px" }}>{n}</td>
+                  <td style={{ padding: "6px 12px", borderBottom: "1px solid var(--border)" }}>{inp(od)}</td>
+                  <td style={{ padding: "6px 12px", borderBottom: "1px solid var(--border)" }}>{inp(oi)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-        <div>
-          <label className="block text-sm font-medium text-text mb-1">Observaciones CFTA</label>
-          <textarea value={historia.cftaObservaciones || ''} onChange={set('cftaObservaciones')} rows={3} className={textareaClass} />
-        </div>
+      </div>
+
+      <div>
+        <label style={S.label}>Observaciones</label>
+        <textarea value={historia.cftaObservaciones || ''} onChange={set('cftaObservaciones')}
+          rows={3} style={S.textarea} onFocus={S.onFocus} onBlur={S.onBlur} />
       </div>
     </div>
   );

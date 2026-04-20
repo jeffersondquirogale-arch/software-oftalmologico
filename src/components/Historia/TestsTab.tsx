@@ -1,37 +1,18 @@
 import type { HistoriaClinica } from '../../db/database';
-
-interface TestsTabProps {
-  historia: Partial<HistoriaClinica>;
-  setHistoria: (h: Partial<HistoriaClinica>) => void;
-}
-
-const inputClass =
-  'w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary';
-
+import { S } from './tabStyles';
+interface TestsTabProps { historia: Partial<HistoriaClinica>; setHistoria: (h: Partial<HistoriaClinica>) => void; }
 export const TestsTab = ({ historia, setHistoria }: TestsTabProps) => {
-  const setField = (field: keyof HistoriaClinica) =>
-    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-      setHistoria({ ...historia, [field]: e.target.value });
-
-  return (
-    <div>
-      <h3 className="text-lg font-title font-semibold text-primary mb-4">
-        Tests Especializados
-      </h3>
-      <div className="grid grid-cols-1 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-text mb-1">Test de Color</label>
-          <input type="text" value={historia.testColor || ''} onChange={setField('testColor')} className={inputClass} />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-text mb-1">Test de Estereopsis</label>
-          <input type="text" value={historia.testEstereopsis || ''} onChange={setField('testEstereopsis')} className={inputClass} />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-text mb-1">Queratometría</label>
-          <textarea value={historia.queratometria || ''} onChange={setField('queratometria')} rows={3} className={inputClass} />
-        </div>
-      </div>
+  const set = (field: keyof HistoriaClinica) => (e: React.ChangeEvent<HTMLInputElement>) => setHistoria({ ...historia, [field]: e.target.value });
+  return (<div style={{display:'flex',flexDirection:'column',gap:'24px'}}>
+    <div><p style={S.title}>Tests y Queratometría</p><p style={S.subtitle}>Pruebas complementarias de visión</p></div>
+    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'20px'}}>
+      <div><label style={S.label}>Test de Color</label><input type="text" value={historia.testColor||''} onChange={set('testColor')} style={S.input} onFocus={S.onFocus} onBlur={S.onBlur}/></div>
+      <div><label style={S.label}>Test de Estereopsis</label><input type="text" value={historia.testEstereopsis||''} onChange={set('testEstereopsis')} style={S.input} onFocus={S.onFocus} onBlur={S.onBlur}/></div>
     </div>
-  );
+    <div style={{padding:'20px',background:'rgba(201,168,76,0.05)',border:'1px solid rgba(201,168,76,0.2)',borderRadius:'12px'}}>
+      <p style={{margin:'0 0 16px',fontSize:'13px',fontWeight:600,color:'#c9a84c',textTransform:'uppercase',letterSpacing:'0.08em'}}>Queratometría</p>
+      <label style={S.label}>OD / OI</label>
+      <input type="text" value={historia.queratometria||''} onChange={set('queratometria')} style={S.input} onFocus={S.onFocus} onBlur={S.onBlur}/>
+    </div>
+  </div>);
 };
