@@ -31,6 +31,7 @@ export const spUpdatePaciente = async (id: number, p: Partial<Paciente>) => {
     fecha_nacimiento: p.fechaNacimiento, edad: p.edad, genero: p.genero,
     telefono: p.telefono, direccion: p.direccion, ocupacion: p.ocupacion,
     eps: p.eps, antecedentes: p.antecedentes,
+    acompanante: p.acompanante, parentesco: p.parentesco,
   }).eq('id', id);
   if (error) throw error;
 };
@@ -98,11 +99,18 @@ const historiaToRow = (h: Partial<HistoriaClinica>) => ({
   refraccion_oi_esf: h.refraccionOI_esf, refraccion_oi_cyl: h.refraccionOI_cyl,
   refraccion_oi_eje: h.refraccionOI_eje, refraccion_oi_add: h.refraccionOI_add,
   refraccion_oi_dnp: h.refraccionOI_dnp, refraccion_oi_av: h.refraccionOI_av,
-  test_color: h.testColor, test_estereopsis: h.testEstereopsis,
+  // Tests nuevos
+  test_color_od: h.testColorOD, test_color_oi: h.testColorOI,
+  test_color_observaciones: h.testColorObservaciones,
+  test_estereopsis_resultado: h.testEstereopsisResultado,
+  test_estereopsis_observaciones: h.testEstereopsisObservaciones,
+  // Queratometría
   queratometria_od_esf: h.queratometriaOD_esf, queratometria_od_cyl: h.queratometriaOD_cyl,
   queratometria_od_eje: h.queratometriaOD_eje,
   queratometria_oi_esf: h.queratometriaOI_esf, queratometria_oi_cyl: h.queratometriaOI_cyl,
   queratometria_oi_eje: h.queratometriaOI_eje,
+  queratometria_observaciones: h.queratometriaObservaciones,
+  // Fórmula
   formula_od_esf: h.formulaOD_esf, formula_od_cyl: h.formulaOD_cyl, formula_od_eje: h.formulaOD_eje,
   formula_od_add: h.formulaOD_add, formula_od_dnp: h.formulaOD_dnp, formula_od_av: h.formulaOD_av,
   formula_oi_esf: h.formulaOI_esf, formula_oi_cyl: h.formulaOI_cyl, formula_oi_eje: h.formulaOI_eje,
@@ -177,6 +185,7 @@ const mapPaciente = (d: any): Paciente => ({
   fechaNacimiento: d.fecha_nacimiento, edad: d.edad, genero: d.genero,
   telefono: d.telefono, direccion: d.direccion, ocupacion: d.ocupacion,
   eps: d.eps, antecedentes: d.antecedentes, fechaRegistro: d.fecha_registro,
+  acompanante: d.acompanante, parentesco: d.parentesco,
 });
 
 const mapHistoria = (d: any): HistoriaClinica => ({
@@ -205,11 +214,18 @@ const mapHistoria = (d: any): HistoriaClinica => ({
   refraccionOI_esf: d.refraccion_oi_esf, refraccionOI_cyl: d.refraccion_oi_cyl,
   refraccionOI_eje: d.refraccion_oi_eje, refraccionOI_add: d.refraccion_oi_add,
   refraccionOI_dnp: d.refraccion_oi_dnp, refraccionOI_av: d.refraccion_oi_av,
-  testColor: d.test_color, testEstereopsis: d.test_estereopsis,
+  // Tests nuevos
+  testColorOD: d.test_color_od, testColorOI: d.test_color_oi,
+  testColorObservaciones: d.test_color_observaciones,
+  testEstereopsisResultado: d.test_estereopsis_resultado,
+  testEstereopsisObservaciones: d.test_estereopsis_observaciones,
+  // Queratometría
   queratometriaOD_esf: d.queratometria_od_esf, queratometriaOD_cyl: d.queratometria_od_cyl,
   queratometriaOD_eje: d.queratometria_od_eje,
   queratometriaOI_esf: d.queratometria_oi_esf, queratometriaOI_cyl: d.queratometria_oi_cyl,
   queratometriaOI_eje: d.queratometria_oi_eje,
+  queratometriaObservaciones: d.queratometria_observaciones,
+  // Fórmula
   formulaOD_esf: d.formula_od_esf, formulaOD_cyl: d.formula_od_cyl, formulaOD_eje: d.formula_od_eje,
   formulaOD_add: d.formula_od_add, formulaOD_dnp: d.formula_od_dnp, formulaOD_av: d.formula_od_av,
   formulaOI_esf: d.formula_oi_esf, formulaOI_cyl: d.formula_oi_cyl, formulaOI_eje: d.formula_oi_eje,
